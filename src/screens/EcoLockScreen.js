@@ -113,28 +113,35 @@ const EcoLockScreen = () => {
   const handleTaskPress = (task) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     updateEcoPoints((prev) => prev + task.points);
+    // Show feedback
+    alert(`Action completed: ${task.title}\n+${task.points} Eco Points!`);
   };
 
   const renderNewsCard = ({ item, index }) => {
-    return (
-      <TouchableOpacity key={item.id} style={styles.newsCard} onPress={() => handleCardPress(item)} activeOpacity={0.8}>
-        <BlurView intensity={20} style={styles.cardBlur}>
-          <LinearGradient colors={[`${item.color}20`, `${item.color}10`]} style={styles.cardGradient}>
-            <View style={styles.cardHeader}>
-              <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
-                <Ionicons name={item.icon} size={24} color="white" />
+    try {
+      return (
+        <TouchableOpacity key={item.id} style={styles.newsCard} onPress={() => handleCardPress(item)} activeOpacity={0.8}>
+          <BlurView intensity={20} style={styles.cardBlur}>
+            <LinearGradient colors={[`${item.color}20`, `${item.color}10`]} style={styles.cardGradient}>
+              <View style={styles.cardHeader}>
+                <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
+                  <Ionicons name={item.icon} size={24} color="white" />
+                </View>
+                <Text style={styles.cardType}>{item.type}</Text>
+                <View style={styles.pointsBadge}>
+                  <Text style={styles.pointsText}>+{item.points}</Text>
+                </View>
               </View>
-              <Text style={styles.cardType}>{item.type}</Text>
-              <View style={styles.pointsBadge}>
-                <Text style={styles.pointsText}>+{item.points}</Text>
-              </View>
-            </View>
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            <Text style={styles.cardSummary}>{item.summary}</Text>
-          </LinearGradient>
-        </BlurView>
-      </TouchableOpacity>
-    );
+              <Text style={styles.cardTitle}>{item.title}</Text>
+              <Text style={styles.cardSummary}>{item.summary}</Text>
+            </LinearGradient>
+          </BlurView>
+        </TouchableOpacity>
+      );
+    } catch (err) {
+      console.error('Error rendering news card:', err, item);
+      return <View key={index}><Text style={{ color: 'red' }}>Error loading card</Text></View>;
+    }
   };
 
   const renderTaskCard = ({ item }) => {

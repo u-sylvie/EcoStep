@@ -11,6 +11,7 @@ const ProfileScreen = ({ navigation }) => {
   const { user, logout, isDarkMode, ecoPoints } = useAppContext()
   const [isEditing, setIsEditing] = useState(false)
   const [editedName, setEditedName] = useState(user?.name || "")
+  const [localUser, setLocalUser] = useState(user);
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -27,7 +28,8 @@ const ProfileScreen = ({ navigation }) => {
   }
 
   const handleSaveProfile = () => {
-    // In a real app, you would update the user data here
+    // Mock update: update local user state
+    setLocalUser({ ...localUser, name: editedName });
     setIsEditing(false)
     Alert.alert("Success", "Profile updated successfully!")
   }
@@ -78,10 +80,10 @@ const ProfileScreen = ({ navigation }) => {
                   autoFocus
                 />
               ) : (
-                <Text style={[styles.userName, { color: isDarkMode ? "white" : "#1f2937" }]}>{user?.name}</Text>
+                <Text style={[styles.userName, { color: isDarkMode ? "white" : "#1f2937" }]}>{localUser?.name}</Text>
               )}
-              <Text style={styles.userEmail}>{user?.email}</Text>
-              <Text style={styles.userLevel}>{user?.level || "Eco Beginner"}</Text>
+              <Text style={styles.userEmail}>{localUser?.email}</Text>
+              <Text style={styles.userLevel}>{localUser?.level || "Eco Beginner"}</Text>
             </View>
             <TouchableOpacity
               style={styles.editButton}
@@ -133,7 +135,7 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Account</Text>
 
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => Alert.alert("Export Data", "Your data has been exported successfully! (mock)") }>
             <BlurView intensity={15} style={styles.actionBlur} tint={isDarkMode ? "dark" : "light"}>
               <LinearGradient colors={cardColors} style={styles.actionGradient}>
                 <Ionicons name="download-outline" size={20} color={isDarkMode ? "white" : "#1f2937"} />

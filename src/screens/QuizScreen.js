@@ -232,19 +232,23 @@ const QuizScreen = ({ navigation, route }) => {
 
         <View style={styles.optionsContainer}>
           {currentQ.options.map((option, index) => {
-            let optionStyle = styles.optionButton
-            let optionTextStyle = [styles.optionText, { color: isDarkMode ? "white" : "#1f2937" }]
+            let optionStyle = [styles.optionButton];
+            let optionTextStyle = [styles.optionText, { color: isDarkMode ? "white" : "#1f2937" }];
 
             if (showResult && selectedAnswer !== null) {
               if (index === currentQ.correct) {
-                optionStyle = [styles.optionButton, styles.correctOption]
-                optionTextStyle = [styles.optionText, { color: "white" }]
+                optionStyle.push(styles.correctOption);
+                optionTextStyle = [styles.optionText, { color: "white" }];
               } else if (index === selectedAnswer && selectedAnswer !== currentQ.correct) {
-                optionStyle = [styles.optionButton, styles.wrongOption]
-                optionTextStyle = [styles.optionText, { color: "white" }]
+                optionStyle.push(styles.wrongOption);
+                optionTextStyle = [styles.optionText, { color: "white" }];
               }
             } else if (selectedAnswer === index) {
-              optionStyle = [styles.optionButton, styles.selectedOption]
+              optionStyle.push(styles.selectedOption);
+            }
+            // Add marginBottom except for last option
+            if (index !== currentQ.options.length - 1) {
+              optionStyle.push({ marginBottom: 15 });
             }
 
             return (
@@ -381,7 +385,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   optionsContainer: {
-    gap: 15,
+    flexDirection: "column",
     marginBottom: 30,
   },
   optionButton: {

@@ -3,10 +3,12 @@ import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
 import { useAppContext } from "../../App"
+import { useState } from "react"
 
 const NewsDetailsScreen = ({ navigation, route }) => {
   const { newsItem } = route.params
   const { isDarkMode, ecoPoints, updateEcoPoints } = useAppContext()
+  const [saved, setSaved] = useState(false);
 
   const bgColors = isDarkMode ? ["#0f172a", "#1e293b", "#334155"] : ["#f8fafc", "#e2e8f0", "#cbd5e1"]
   const cardColors = isDarkMode ? ["#374151", "#1f2937"] : ["#ffffff", "#f1f5f9"]
@@ -56,7 +58,7 @@ Environmental advocates stress the importance of continued public support and en
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>News Article</Text>
           <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-            <Ionicons name="share-outline" size={24} color={isDarkMode ? "white" : "#1f2937"} />
+            <Ionicons name="share-social-outline" size={24} color={isDarkMode ? "white" : "#1f2937"} />
           </TouchableOpacity>
         </View>
 
@@ -80,8 +82,8 @@ Environmental advocates stress the importance of continued public support and en
                 <Ionicons name="leaf" size={16} color="#10b981" />
                 <Text style={styles.pointsText}>+{newsItem.points} Eco Points earned</Text>
               </View>
-              <TouchableOpacity style={styles.bookmarkButton}>
-                <Ionicons name="bookmark-outline" size={20} color="#9ca3af" />
+              <TouchableOpacity style={styles.bookmarkButton} onPress={() => setSaved((prev) => !prev)}>
+                <Ionicons name={saved ? "bookmark" : "bookmark-outline"} size={20} color={saved ? "#10b981" : "#9ca3af"} />
               </TouchableOpacity>
             </View>
           </LinearGradient>
