@@ -1,276 +1,172 @@
-"use client"
-
-import { useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
-import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
+import { useAppContext } from "../../App"
 
-const EcoCommunity = () => {
-  const [selectedTab, setSelectedTab] = useState("feed")
+const { width } = Dimensions.get("window")
 
-  const communityPosts = [
+const EcoCommunity = ({ navigation }) => {
+  const { isDarkMode, toggleTheme, user } = useAppContext()
+
+  const communityFeatures = [
+    {
+      title: "Social Feed",
+      description: "Share your eco journey",
+      icon: "chatbubbles",
+      color: "#10b981",
+      screen: "SocialFeed",
+    },
+    {
+      title: "Group Challenges",
+      description: "Join community challenges",
+      icon: "trophy",
+      color: "#3b82f6",
+      screen: "GroupChallenges",
+    },
+    {
+      title: "My Groups",
+      description: "Manage your groups",
+      icon: "people",
+      color: "#f59e0b",
+      screen: "MyGroups",
+    },
+  ]
+
+  const communityStats = [
+    { label: "Active Members", value: "12.5K", icon: "people", color: "#10b981" },
+    { label: "Challenges", value: "45", icon: "trophy", color: "#3b82f6" },
+    { label: "Groups", value: "128", icon: "grid", color: "#f59e0b" },
+    { label: "Posts Today", value: "234", icon: "chatbubble", color: "#ef4444" },
+  ]
+
+  const recentActivity = [
     {
       id: 1,
       user: "EcoWarrior23",
+      action: "completed the Plastic-Free Week challenge",
+      time: "2h ago",
       avatar: "🌱",
-      action: "completed Zero Waste Shopping",
-      points: 50,
-      time: "2 hours ago",
-      likes: 12,
-      comments: 3,
-      image: null,
     },
     {
       id: 2,
       user: "GreenThumb",
+      action: "shared a photo in Urban Gardeners group",
+      time: "4h ago",
       avatar: "🌿",
-      action: "planted 3 trees in the local park",
-      points: 150,
-      time: "4 hours ago",
-      likes: 28,
-      comments: 7,
-      image: "🌳",
     },
     {
       id: 3,
       user: "ClimateChampion",
-      avatar: "♻️",
-      action: "used public transport for a week",
-      points: 175,
-      time: "1 day ago",
-      likes: 45,
-      comments: 12,
-      image: null,
+      action: "organized a beach cleanup event",
+      time: "6h ago",
+      avatar: "🌍",
     },
   ]
-
-  const challenges = [
-    {
-      id: 1,
-      title: "Plastic-Free Week",
-      description: "Avoid single-use plastics for 7 days",
-      participants: 234,
-      daysLeft: 3,
-      reward: 200,
-      color: "#ef4444",
-      icon: "ban",
-    },
-    {
-      id: 2,
-      title: "Green Commute Challenge",
-      description: "Use eco-friendly transportation",
-      participants: 156,
-      daysLeft: 5,
-      reward: 150,
-      color: "#10b981",
-      icon: "bicycle",
-    },
-    {
-      id: 3,
-      title: "Energy Saving Sprint",
-      description: "Reduce home energy consumption",
-      participants: 89,
-      daysLeft: 2,
-      reward: 100,
-      color: "#f59e0b",
-      icon: "flash",
-    },
-  ]
-
-  const leaderboard = [
-    { rank: 1, name: "EcoMaster", points: 2450, badge: "👑" },
-    { rank: 2, name: "GreenGuru", points: 2180, badge: "🥈" },
-    { rank: 3, name: "ClimateHero", points: 1950, badge: "🥉" },
-    { rank: 4, name: "You", points: 1250, badge: "🌟" },
-    { rank: 5, name: "EcoFriend", points: 1100, badge: "🌱" },
-  ]
-
-  const renderPost = (post) => (
-    <BlurView key={post.id} intensity={20} style={styles.postCard}>
-      <LinearGradient colors={["#374151", "#1f2937"]} style={styles.postGradient}>
-        <View style={styles.postHeader}>
-          <View style={styles.userInfo}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{post.avatar}</Text>
-            </View>
-            <View style={styles.userDetails}>
-              <Text style={styles.username}>{post.user}</Text>
-              <Text style={styles.postTime}>{post.time}</Text>
-            </View>
-          </View>
-          <View style={styles.pointsBadge}>
-            <Text style={styles.pointsText}>+{post.points}</Text>
-          </View>
-        </View>
-
-        <Text style={styles.postContent}>{post.action}</Text>
-
-        {post.image && (
-          <View style={styles.postImage}>
-            <Text style={styles.imageEmoji}>{post.image}</Text>
-          </View>
-        )}
-
-        <View style={styles.postActions}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="heart-outline" size={20} color="#9ca3af" />
-            <Text style={styles.actionText}>{post.likes}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="chatbubble-outline" size={20} color="#9ca3af" />
-            <Text style={styles.actionText}>{post.comments}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="share-outline" size={20} color="#9ca3af" />
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
-    </BlurView>
-  )
-
-  const renderChallenge = (challenge) => (
-    <TouchableOpacity key={challenge.id} style={styles.challengeCard}>
-      <BlurView intensity={20} style={styles.challengeBlur}>
-        <LinearGradient colors={[`${challenge.color}20`, `${challenge.color}10`]} style={styles.challengeGradient}>
-          <View style={styles.challengeHeader}>
-            <View style={[styles.challengeIcon, { backgroundColor: challenge.color }]}>
-              <Ionicons name={challenge.icon} size={20} color="white" />
-            </View>
-            <View style={styles.challengeInfo}>
-              <Text style={styles.challengeTitle}>{challenge.title}</Text>
-              <Text style={styles.challengeDescription}>{challenge.description}</Text>
-            </View>
-            <View style={styles.challengeReward}>
-              <Text style={styles.rewardPoints}>+{challenge.reward}</Text>
-            </View>
-          </View>
-          <View style={styles.challengeStats}>
-            <View style={styles.challengeStat}>
-              <Ionicons name="people" size={16} color="#9ca3af" />
-              <Text style={styles.statText}>{challenge.participants} joined</Text>
-            </View>
-            <View style={styles.challengeStat}>
-              <Ionicons name="time" size={16} color="#9ca3af" />
-              <Text style={styles.statText}>{challenge.daysLeft} days left</Text>
-            </View>
-          </View>
-        </LinearGradient>
-      </BlurView>
-    </TouchableOpacity>
-  )
-
-  const renderLeaderboardItem = (item) => (
-    <View key={item.rank} style={styles.leaderboardItem}>
-      <View style={styles.rankInfo}>
-        <Text style={styles.rankNumber}>{item.rank}</Text>
-        <Text style={styles.rankBadge}>{item.badge}</Text>
-        <Text style={[styles.rankName, item.name === "You" && styles.currentUser]}>{item.name}</Text>
-      </View>
-      <Text style={styles.rankPoints}>{item.points.toLocaleString()}</Text>
-    </View>
-  )
-
-  const renderTabContent = () => {
-    switch (selectedTab) {
-      case "feed":
-        return (
-          <View style={styles.tabContent}>
-            <Text style={styles.sectionTitle}>Community Feed</Text>
-            {communityPosts.map(renderPost)}
-          </View>
-        )
-      case "challenges":
-        return (
-          <View style={styles.tabContent}>
-            <Text style={styles.sectionTitle}>Active Challenges</Text>
-            {challenges.map(renderChallenge)}
-          </View>
-        )
-      case "leaderboard":
-        return (
-          <View style={styles.tabContent}>
-            <Text style={styles.sectionTitle}>Weekly Leaderboard</Text>
-            <BlurView intensity={20} style={styles.leaderboardCard}>
-              <LinearGradient colors={["#374151", "#1f2937"]} style={styles.leaderboardGradient}>
-                {leaderboard.map(renderLeaderboardItem)}
-              </LinearGradient>
-            </BlurView>
-          </View>
-        )
-      default:
-        return null
-    }
-  }
 
   return (
-    <LinearGradient colors={["#0f172a", "#1e293b", "#334155"]} style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Eco Community</Text>
-          <Text style={styles.headerSubtitle}>Connect with fellow eco-warriors</Text>
+    <View style={[styles.container, { backgroundColor: isDarkMode ? "#0f172a" : "#f8fafc" }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+            <Text style={styles.avatar}>{user?.avatar || "🌱"}</Text>
+          </TouchableOpacity>
+          <View>
+            <Text style={[styles.greeting, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+              Hello, {user?.name || "Eco Warrior"}
+            </Text>
+            <Text style={[styles.title, { color: isDarkMode ? "white" : "black" }]}>Eco Community</Text>
+          </View>
         </View>
+        <View style={styles.headerRight}>
+          <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
+            <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color={isDarkMode ? "#fbbf24" : "#6366f1"} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
+            <Ionicons name="settings-outline" size={24} color={isDarkMode ? "white" : "black"} />
+          </TouchableOpacity>
+        </View>
+      </View>
 
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* Community Stats */}
-        <BlurView intensity={30} style={styles.statsCard}>
-          <LinearGradient colors={["#10b98120", "#059669"]} style={styles.statsGradient}>
-            <View style={styles.statsHeader}>
-              <Ionicons name="people" size={24} color="#10b981" />
-              <Text style={styles.statsTitle}>Community Impact</Text>
-            </View>
-            <View style={styles.statsGrid}>
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>12.5k</Text>
-                <Text style={styles.statLabel}>Active Members</Text>
+        <View style={styles.statsContainer}>
+          {communityStats.map((stat, index) => (
+            <LinearGradient
+              key={index}
+              colors={isDarkMode ? ["#1e293b", "#334155"] : ["#ffffff", "#f1f5f9"]}
+              style={styles.statCard}
+            >
+              <View style={[styles.statIcon, { backgroundColor: stat.color }]}>
+                <Ionicons name={stat.icon} size={20} color="white" />
               </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>450 tons</Text>
-                <Text style={styles.statLabel}>CO2 Saved</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>8.2k</Text>
-                <Text style={styles.statLabel}>Trees Planted</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>156</Text>
-                <Text style={styles.statLabel}>Active Challenges</Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </BlurView>
-
-        {/* Tab Navigation */}
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, selectedTab === "feed" && styles.activeTab]}
-            onPress={() => setSelectedTab("feed")}
-          >
-            <Ionicons name="newspaper" size={20} color={selectedTab === "feed" ? "#10b981" : "#9ca3af"} />
-            <Text style={[styles.tabText, selectedTab === "feed" && styles.activeTabText]}>Feed</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.tab, selectedTab === "challenges" && styles.activeTab]}
-            onPress={() => setSelectedTab("challenges")}
-          >
-            <Ionicons name="trophy" size={20} color={selectedTab === "challenges" ? "#10b981" : "#9ca3af"} />
-            <Text style={[styles.tabText, selectedTab === "challenges" && styles.activeTabText]}>Challenges</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.tab, selectedTab === "leaderboard" && styles.activeTab]}
-            onPress={() => setSelectedTab("leaderboard")}
-          >
-            <Ionicons name="podium" size={20} color={selectedTab === "leaderboard" ? "#10b981" : "#9ca3af"} />
-            <Text style={[styles.tabText, selectedTab === "leaderboard" && styles.activeTabText]}>Leaderboard</Text>
-          </TouchableOpacity>
+              <Text style={[styles.statValue, { color: isDarkMode ? "white" : "black" }]}>{stat.value}</Text>
+              <Text style={[styles.statLabel, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>{stat.label}</Text>
+            </LinearGradient>
+          ))}
         </View>
 
-        {/* Tab Content */}
-        {renderTabContent()}
+        {/* Community Features */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "black" }]}>Community Features</Text>
+          <View style={styles.featuresGrid}>
+            {communityFeatures.map((feature, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[styles.featureCard, { backgroundColor: isDarkMode ? "#1e293b" : "white" }]}
+                onPress={() => navigation.navigate(feature.screen)}
+              >
+                <View style={[styles.featureIcon, { backgroundColor: feature.color }]}>
+                  <Ionicons name={feature.icon} size={28} color="white" />
+                </View>
+                <Text style={[styles.featureTitle, { color: isDarkMode ? "white" : "black" }]}>{feature.title}</Text>
+                <Text style={[styles.featureDescription, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+                  {feature.description}
+                </Text>
+                <View style={styles.featureArrow}>
+                  <Ionicons name="chevron-forward" size={20} color={feature.color} />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Recent Activity */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "black" }]}>
+            Recent Community Activity
+          </Text>
+          {recentActivity.map((activity) => (
+            <View
+              key={activity.id}
+              style={[styles.activityItem, { backgroundColor: isDarkMode ? "#1e293b" : "white" }]}
+            >
+              <Text style={styles.activityAvatar}>{activity.avatar}</Text>
+              <View style={styles.activityInfo}>
+                <Text style={[styles.activityText, { color: isDarkMode ? "white" : "black" }]}>
+                  <Text style={styles.activityUser}>{activity.user}</Text> {activity.action}
+                </Text>
+                <Text style={[styles.activityTime, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+                  {activity.time}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Call to Action */}
+        <LinearGradient colors={["#10b981", "#059669"]} style={styles.ctaCard}>
+          <Ionicons name="people" size={40} color="white" />
+          <Text style={styles.ctaTitle}>Join the Movement!</Text>
+          <Text style={styles.ctaDescription}>
+            Connect with like-minded eco warriors and make a difference together.
+          </Text>
+          <TouchableOpacity style={styles.ctaButton} onPress={() => navigation.navigate("SocialFeed")}>
+            <Text style={styles.ctaButtonText}>Get Started</Text>
+          </TouchableOpacity>
+        </LinearGradient>
       </ScrollView>
-    </LinearGradient>
+    </View>
   )
 }
 
@@ -278,286 +174,177 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
-    paddingTop: 60,
-  },
   header: {
-    paddingHorizontal: 30,
-    marginBottom: 30,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
   },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 5,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: "#9ca3af",
-  },
-  statsCard: {
-    marginHorizontal: 30,
-    marginBottom: 30,
-    borderRadius: 20,
-    overflow: "hidden",
-  },
-  statsGradient: {
-    padding: 20,
-  },
-  statsHeader: {
+  headerLeft: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
   },
-  statsTitle: {
-    fontSize: 18,
+  avatar: {
+    fontSize: 40,
+    marginRight: 15,
+  },
+  greeting: {
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  title: {
+    fontSize: 24,
     fontWeight: "bold",
-    color: "white",
-    marginLeft: 10,
   },
-  statsGrid: {
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 15,
+  },
+  themeButton: {
+    padding: 8,
+  },
+  statsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    marginBottom: 30,
   },
-  statItem: {
-    width: "48%",
+  statCard: {
+    width: (width - 60) / 2,
+    margin: 10,
+    padding: 20,
+    borderRadius: 15,
     alignItems: "center",
-    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
   },
   statValue: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#10b981",
+    marginBottom: 5,
   },
   statLabel: {
     fontSize: 12,
-    color: "#9ca3af",
-    marginTop: 5,
+    textAlign: "center",
   },
-  tabContainer: {
-    flexDirection: "row",
-    marginHorizontal: 30,
-    marginBottom: 20,
-    backgroundColor: "#374151",
-    borderRadius: 15,
-    padding: 5,
-  },
-  tab: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  activeTab: {
-    backgroundColor: "#10b98120",
-  },
-  tabText: {
-    fontSize: 14,
-    color: "#9ca3af",
-    marginLeft: 5,
-    fontWeight: "500",
-  },
-  activeTabText: {
-    color: "#10b981",
-  },
-  tabContent: {
-    paddingHorizontal: 30,
+  section: {
+    paddingHorizontal: 20,
+    marginBottom: 30,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "white",
-    marginBottom: 20,
+    marginBottom: 15,
   },
-  postCard: {
-    marginBottom: 20,
-    borderRadius: 15,
-    overflow: "hidden",
+  featuresGrid: {
+    gap: 15,
   },
-  postGradient: {
+  featureCard: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 20,
-  },
-  postHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  userInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#4b5563",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  avatarText: {
-    fontSize: 18,
-  },
-  userDetails: {
-    flex: 1,
-  },
-  username: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-  },
-  postTime: {
-    fontSize: 12,
-    color: "#9ca3af",
-    marginTop: 2,
-  },
-  pointsBadge: {
-    backgroundColor: "#10b981",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  pointsText: {
-    fontSize: 12,
-    color: "white",
-    fontWeight: "bold",
-  },
-  postContent: {
-    fontSize: 16,
-    color: "white",
-    lineHeight: 24,
-    marginBottom: 15,
-  },
-  postImage: {
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  imageEmoji: {
-    fontSize: 48,
-  },
-  postActions: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: "#4b5563",
-  },
-  actionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  actionText: {
-    fontSize: 14,
-    color: "#9ca3af",
-    marginLeft: 5,
-  },
-  challengeCard: {
-    marginBottom: 15,
     borderRadius: 15,
-    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  challengeBlur: {
-    flex: 1,
-  },
-  challengeGradient: {
-    padding: 20,
-  },
-  challengeHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  challengeIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  featureIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 15,
   },
-  challengeInfo: {
-    flex: 1,
-  },
-  challengeTitle: {
+  featureTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "white",
-    marginBottom: 5,
+    marginBottom: 4,
+    flex: 1,
   },
-  challengeDescription: {
+  featureDescription: {
     fontSize: 14,
-    color: "#d1d5db",
-  },
-  challengeReward: {
-    alignItems: "flex-end",
-  },
-  rewardPoints: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#10b981",
-  },
-  challengeStats: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  challengeStat: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  statText: {
-    fontSize: 12,
-    color: "#9ca3af",
-    marginLeft: 5,
-  },
-  leaderboardCard: {
-    borderRadius: 15,
-    overflow: "hidden",
-  },
-  leaderboardGradient: {
-    padding: 20,
-  },
-  leaderboardItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#4b5563",
-  },
-  rankInfo: {
-    flexDirection: "row",
-    alignItems: "center",
     flex: 1,
   },
-  rankNumber: {
-    fontSize: 16,
+  featureArrow: {
+    marginLeft: 10,
+  },
+  activityItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  activityAvatar: {
+    fontSize: 30,
+    marginRight: 15,
+  },
+  activityInfo: {
+    flex: 1,
+  },
+  activityText: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 4,
+  },
+  activityUser: {
     fontWeight: "bold",
-    color: "#9ca3af",
-    width: 30,
   },
-  rankBadge: {
-    fontSize: 20,
-    marginRight: 10,
+  activityTime: {
+    fontSize: 12,
   },
-  rankName: {
+  ctaCard: {
+    margin: 20,
+    padding: 30,
+    borderRadius: 20,
+    alignItems: "center",
+  },
+  ctaTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+    marginTop: 15,
+    marginBottom: 10,
+  },
+  ctaDescription: {
     fontSize: 16,
     color: "white",
-    flex: 1,
+    textAlign: "center",
+    marginBottom: 20,
+    opacity: 0.9,
   },
-  currentUser: {
-    color: "#10b981",
-    fontWeight: "bold",
+  ctaButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    borderRadius: 25,
   },
-  rankPoints: {
+  ctaButtonText: {
+    color: "white",
     fontSize: 16,
     fontWeight: "bold",
-    color: "#10b981",
   },
 })
 

@@ -1,13 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
 import * as Haptics from "expo-haptics"
+import { Alert } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import { useAppContext } from "../../App"
 
 const EcoAction = () => {
+  const navigation = useNavigation()
+  const { isDarkMode, ecoPoints, updateEcoPoints } = useAppContext()
   const [completedActions, setCompletedActions] = useState([])
 
   const actionCategories = [
@@ -121,20 +126,43 @@ const EcoAction = () => {
   const handleActionComplete = (action) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
 
-    Alert.alert("Complete Action", `Take a photo to verify: ${action.title}`, [
+    Alert.alert("Verify Action", `Take a photo to verify: ${action.title}`, [
       { text: "Cancel", style: "cancel" },
       {
         text: "Take Photo",
-        onPress: () => {
-          // In a real app, this would open the camera
-          setCompletedActions((prev) => [...prev, action.id])
-          Alert.alert(
-            "Action Completed!",
-            `You earned ${action.points} Eco Points and saved ${action.co2Saved} of CO2!`,
-          )
-        },
+        onPress: () => openCamera(action),
+      },
+      {
+        text: "Choose from Gallery",
+        onPress: () => openImagePicker(action),
       },
     ])
+  }
+
+  const openCamera = async (action) => {
+    Alert.alert("Take Photo", "Camera would open here in a real app", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Simulate Photo",
+        onPress: () => completeAction(action),
+      },
+    ])
+  }
+
+  const openImagePicker = async (action) => {
+    Alert.alert("Choose Photo", "Gallery would open here in a real app", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Simulate Upload",
+        onPress: () => completeAction(action),
+      },
+    ])
+  }
+
+  const completeAction = (action) => {
+    setCompletedActions((prev) => [...prev, action.id])
+    updateEcoPoints(ecoPoints + action.points)
+    Alert.alert("Action Completed! 🎉", `You earned ${action.points} Eco Points and saved ${action.co2Saved} of CO2!`)
   }
 
   const getDifficultyColor = (difficulty) => {
@@ -212,6 +240,8 @@ const EcoAction = () => {
     </View>
   )
 
+  const cardColors = ["#2dd4bf20", "#22c55f10"]
+
   return (
     <LinearGradient colors={["#0f172a", "#1e293b", "#334155"]} style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -219,6 +249,38 @@ const EcoAction = () => {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Eco Action</Text>
           <Text style={styles.headerSubtitle}>Practice and certify eco-friendly behaviors</Text>
+        </View>
+
+        {/* Quick Access Cards */}
+        <View style={styles.quickAccessContainer}>
+          <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("MissionCatalog")}>
+            <BlurView intensity={20} style={styles.quickAccessBlur}>
+              <LinearGradient colors={cardColors} style={styles.quickAccessGradient}>
+                <Ionicons name="list" size={24} color="#10b981" />
+                <Text style={[styles.quickAccessText, { color: isDarkMode ? "white" : "#1f2937" }]}>
+                  Mission Catalog
+                </Text>
+              </LinearGradient>
+            </BlurView>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("ActionVerification")}>
+            <BlurView intensity={20} style={styles.quickAccessBlur}>
+              <LinearGradient colors={cardColors} style={styles.quickAccessGradient}>
+                <Ionicons name="camera" size={24} color="#3b82f6" />
+                <Text style={[styles.quickAccessText, { color: isDarkMode ? "white" : "#1f2937" }]}>Verification</Text>
+              </LinearGradient>
+            </BlurView>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("MissionComplete")}>
+            <BlurView intensity={20} style={styles.quickAccessBlur}>
+              <LinearGradient colors={cardColors} style={styles.quickAccessGradient}>
+                <Ionicons name="checkmark-circle" size={24} color="#f59e0b" />
+                <Text style={[styles.quickAccessText, { color: isDarkMode ? "white" : "#1f2937" }]}>Complete</Text>
+              </LinearGradient>
+            </BlurView>
+          </TouchableOpacity>
         </View>
 
         {/* Progress Summary */}
@@ -500,6 +562,30 @@ const styles = StyleSheet.create({
   challengeProgressText: {
     fontSize: 12,
     color: "#9ca3af",
+  },
+  quickAccessContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 30,
+    marginBottom: 30,
+    gap: 10,
+  },
+  quickAccessCard: {
+    flex: 1,
+    borderRadius: 15,
+    overflow: "hidden",
+  },
+  quickAccessBlur: {
+    flex: 1,
+  },
+  quickAccessGradient: {
+    padding: 15,
+    alignItems: "center",
+  },
+  quickAccessText: {
+    fontSize: 12,
+    fontWeight: "600",
+    marginTop: 8,
+    textAlign: "center",
   },
 })
 

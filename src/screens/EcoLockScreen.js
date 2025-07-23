@@ -1,20 +1,23 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity, Animated } from "react-native"
-import { LinearGradient } from "expo-linear-gradient"
-import { BlurView } from "expo-blur"
-import { Ionicons } from "@expo/vector-icons"
-import * as Haptics from "expo-haptics"
+import { useState, useRef, useEffect } from "react";
+import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity, Animated } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { useNavigation } from "@react-navigation/native";
+import { useAppContext } from "../../App";
 
-const { width, height } = Dimensions.get("window")
+const { width, height } = Dimensions.get("window");
 
 const EcoLockScreen = () => {
-  const [currentTime, setCurrentTime] = useState(new Date())
-  const [currentCard, setCurrentCard] = useState(0)
-  const [ecoPoints, setEcoPoints] = useState(1250)
-  const scrollX = useRef(new Animated.Value(0)).current
-  const scrollViewRef = useRef(null)
+  const navigation = useNavigation();
+  const { user, ecoPoints, updateEcoPoints } = useAppContext();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentCard, setCurrentCard] = useState(0);
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef(null);
 
   const newsData = [
     {
@@ -44,7 +47,7 @@ const EcoLockScreen = () => {
       icon: "help-circle",
       color: "#f59e0b",
     },
-  ]
+  ];
 
   const ecoTasks = [
     {
@@ -71,48 +74,46 @@ const EcoLockScreen = () => {
       icon: "bag",
       color: "#ef4444",
     },
-  ]
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
+      setCurrentTime(new Date());
+    }, 1000);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
   const formatTime = (date) => {
     return date.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
-    })
-  }
+    });
+  };
 
   const formatDate = (date) => {
     return date.toLocaleDateString("en-US", {
       weekday: "long",
       month: "long",
       day: "numeric",
-    })
-  }
+    });
+  };
 
   const handleCardPress = (item) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (item.type === "Quiz") {
-      // Handle quiz logic
-      setEcoPoints((prev) => prev + item.points)
+      navigation.navigate("Quiz", { quiz: { title: item.title, questions: [] } });
     } else {
-      // Handle news reading
-      setEcoPoints((prev) => prev + item.points)
+      navigation.navigate("NewsDetails", { newsItem: item });
+      updateEcoPoints(ecoPoints + item.points);
     }
-  }
+  };
 
   const handleTaskPress = (task) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    // Handle task completion
-    setEcoPoints((prev) => prev + task.points)
-  }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    updateEcoPoints((prev) => prev + task.points);
+  };
 
   const renderNewsCard = ({ item, index }) => {
     return (
@@ -133,8 +134,8 @@ const EcoLockScreen = () => {
           </LinearGradient>
         </BlurView>
       </TouchableOpacity>
-    )
-  }
+    );
+  };
 
   const renderTaskCard = ({ item }) => {
     return (
@@ -152,12 +153,11 @@ const EcoLockScreen = () => {
           </View>
         </BlurView>
       </TouchableOpacity>
-    )
-  }
+    );
+  };
 
   return (
     <LinearGradient colors={["#0f172a", "#1e293b", "#334155"]} style={styles.container}>
-      {/* Background Pattern */}
       <View style={styles.backgroundPattern}>
         {[...Array(20)].map((_, i) => (
           <View
@@ -175,13 +175,32 @@ const EcoLockScreen = () => {
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} bounces={true}>
-        {/* Time and Date */}
         <View style={styles.timeContainer}>
           <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
           <Text style={styles.dateText}>{formatDate(currentTime)}</Text>
         </View>
 
-        {/* Eco Points Display */}
+        {!user && (
+          <View style={styles.authContainer}>
+            <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate("Login")}>
+              <Text style={styles.authButtonText}>Sign In</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.authButton, styles.signUpButton]}
+              onPress={() => navigation.navigate("SignUp")}
+            >
+              <Text style={styles.authButtonTextSecondary}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {user && (
+          <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate("Profile")}>
+            <Text style={styles.profileAvatar}>{user.avatar}</Text>
+            <Text style={styles.profileName}>{user.name}</Text>
+          </TouchableOpacity>
+        )}
+
         <BlurView intensity={30} style={styles.pointsContainer}>
           <LinearGradient colors={["#10b98120", "#059669"]} style={styles.pointsGradient}>
             <Ionicons name="leaf" size={24} color="#10b981" />
@@ -190,7 +209,6 @@ const EcoLockScreen = () => {
           </LinearGradient>
         </BlurView>
 
-        {/* Daily Environmental Content */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Today's Environmental Insights</Text>
           <ScrollView
@@ -206,13 +224,11 @@ const EcoLockScreen = () => {
           </ScrollView>
         </View>
 
-        {/* Quick Eco Actions */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Quick Eco Actions</Text>
           <View style={styles.tasksContainer}>{ecoTasks.map((item) => renderTaskCard({ item }))}</View>
         </View>
 
-        {/* Environmental Tip of the Day */}
         <BlurView intensity={20} style={styles.tipContainer}>
           <LinearGradient colors={["#3b82f620", "#1d4ed8"]} style={styles.tipGradient}>
             <Ionicons name="lightbulb" size={24} color="#3b82f6" />
@@ -224,7 +240,6 @@ const EcoLockScreen = () => {
           </LinearGradient>
         </BlurView>
 
-        {/* Weekly Challenge */}
         <BlurView intensity={20} style={styles.challengeContainer}>
           <LinearGradient colors={["#f59e0b20", "#d97706"]} style={styles.challengeGradient}>
             <View style={styles.challengeHeader}>
@@ -240,8 +255,8 @@ const EcoLockScreen = () => {
         </BlurView>
       </ScrollView>
     </LinearGradient>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -473,6 +488,53 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#9ca3af",
   },
-})
+  authContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 15,
+    marginBottom: 30,
+    paddingHorizontal: 30,
+  },
+  authButton: {
+    flex: 1,
+    backgroundColor: "#374151",
+    paddingVertical: 12,
+    borderRadius: 15,
+    alignItems: "center",
+  },
+  signUpButton: {
+    backgroundColor: "#10b981",
+  },
+  authButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  authButtonTextSecondary: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  profileButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#374151",
+    marginHorizontal: 30,
+    marginBottom: 30,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 15,
+  },
+  profileAvatar: {
+    fontSize: 24,
+    marginRight: 10,
+  },
+  profileName: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+});
 
-export default EcoLockScreen
+export default EcoLockScreen;

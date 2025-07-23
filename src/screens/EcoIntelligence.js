@@ -5,10 +5,14 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from
 import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
+import { useNavigation } from "@react-navigation/native"
+import { useAppContext } from "../../App"
 
 const { width } = Dimensions.get("window")
 
 const EcoIntelligence = () => {
+  const navigation = useNavigation()
+  const { isDarkMode, toggleTheme } = useAppContext()
   const [selectedTopic, setSelectedTopic] = useState("climate-basics")
 
   const topics = [
@@ -46,28 +50,11 @@ const EcoIntelligence = () => {
     },
   ]
 
-  const quizzes = [
-    {
-      id: 1,
-      question: "What percentage of global greenhouse gas emissions come from transportation?",
-      options: ["14%", "24%", "34%", "44%"],
-      correct: 1,
-      explanation: "Transportation accounts for approximately 24% of global CO2 emissions.",
-    },
-    {
-      id: 2,
-      question: "Which renewable energy source has grown the fastest in recent years?",
-      options: ["Solar", "Wind", "Hydro", "Geothermal"],
-      correct: 0,
-      explanation: "Solar energy has experienced the most rapid growth globally.",
-    },
-  ]
-
   const renderTopicCard = (topic) => (
     <TouchableOpacity
       key={topic.id}
       style={styles.topicCard}
-      onPress={() => setSelectedTopic(topic.id)}
+      onPress={() => navigation.navigate("LearningDashboard")}
       activeOpacity={0.8}
     >
       <BlurView intensity={20} style={styles.topicBlur}>
@@ -90,13 +77,59 @@ const EcoIntelligence = () => {
     </TouchableOpacity>
   )
 
+  const bgColors = isDarkMode ? ["#0f172a", "#1e293b", "#334155"] : ["#f8fafc", "#e2e8f0", "#cbd5e1"]
+  const cardColors = isDarkMode ? ["#374151", "#1f2937"] : ["#ffffff", "#f1f5f9"]
+
   return (
-    <LinearGradient colors={["#0f172a", "#1e293b", "#334155"]} style={styles.container}>
+    <LinearGradient colors={bgColors} style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Eco Intelligence</Text>
-          <Text style={styles.headerSubtitle}>Personalized environmental education</Text>
+        {/* Header with Theme Toggle */}
+        <View style={styles.headerContainer}>
+          <View style={styles.header}>
+            <Text style={[styles.headerTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Eco Intelligence</Text>
+            <TouchableOpacity style={styles.themeToggle} onPress={toggleTheme}>
+              <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color={isDarkMode ? "#f59e0b" : "#6366f1"} />
+            </TouchableOpacity>
+          </View>
+          <Text style={[styles.headerSubtitle, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+            Personalized environmental education
+          </Text>
+        </View>
+
+        {/* Quick Access Cards */}
+        <View style={styles.quickAccessContainer}>
+          <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("LearningDashboard")}>
+            <BlurView intensity={20} style={styles.quickAccessBlur}>
+              <LinearGradient colors={cardColors} style={styles.quickAccessGradient}>
+                <Ionicons name="school" size={24} color="#10b981" />
+                <Text style={[styles.quickAccessText, { color: isDarkMode ? "white" : "#1f2937" }]}>
+                  Learning Dashboard
+                </Text>
+              </LinearGradient>
+            </BlurView>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("InteractiveQuiz")}>
+            <BlurView intensity={20} style={styles.quickAccessBlur}>
+              <LinearGradient colors={cardColors} style={styles.quickAccessGradient}>
+                <Ionicons name="help-circle" size={24} color="#3b82f6" />
+                <Text style={[styles.quickAccessText, { color: isDarkMode ? "white" : "#1f2937" }]}>
+                  Interactive Quiz
+                </Text>
+              </LinearGradient>
+            </BlurView>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("LearningModule")}>
+            <BlurView intensity={20} style={styles.quickAccessBlur}>
+              <LinearGradient colors={cardColors} style={styles.quickAccessGradient}>
+                <Ionicons name="book" size={24} color="#f59e0b" />
+                <Text style={[styles.quickAccessText, { color: isDarkMode ? "white" : "#1f2937" }]}>
+                  Learning Module
+                </Text>
+              </LinearGradient>
+            </BlurView>
+          </TouchableOpacity>
         </View>
 
         {/* Learning Progress */}
@@ -125,58 +158,68 @@ const EcoIntelligence = () => {
 
         {/* Learning Topics */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Learning Topics</Text>
+          <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Learning Topics</Text>
           {topics.map(renderTopicCard)}
         </View>
 
         {/* Daily Quiz */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Daily Quiz Challenge</Text>
-          <BlurView intensity={20} style={styles.quizCard}>
-            <LinearGradient colors={["#f59e0b20", "#d97706"]} style={styles.quizGradient}>
-              <View style={styles.quizHeader}>
-                <Ionicons name="help-circle" size={24} color="#f59e0b" />
-                <Text style={styles.quizTitle}>Climate Knowledge Test</Text>
-                <View style={styles.quizBadge}>
-                  <Text style={styles.quizBadgeText}>+20 Points</Text>
+          <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Daily Quiz Challenge</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("InteractiveQuiz")}>
+            <BlurView intensity={20} style={styles.quizCard}>
+              <LinearGradient colors={["#f59e0b20", "#d97706"]} style={styles.quizGradient}>
+                <View style={styles.quizHeader}>
+                  <Ionicons name="help-circle" size={24} color="#f59e0b" />
+                  <Text style={styles.quizTitle}>Climate Knowledge Test</Text>
+                  <View style={styles.quizBadge}>
+                    <Text style={styles.quizBadgeText}>+20 Points</Text>
+                  </View>
                 </View>
-              </View>
-              <Text style={styles.quizQuestion}>
-                What percentage of global greenhouse gas emissions come from transportation?
-              </Text>
-              <View style={styles.optionsContainer}>
-                {["14%", "24%", "34%", "44%"].map((option, index) => (
-                  <TouchableOpacity key={index} style={styles.optionButton} activeOpacity={0.8}>
-                    <Text style={styles.optionText}>{option}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </LinearGradient>
-          </BlurView>
+                <Text style={styles.quizQuestion}>
+                  What percentage of global greenhouse gas emissions come from transportation?
+                </Text>
+                <View style={styles.optionsContainer}>
+                  {["14%", "24%", "34%", "44%"].map((option, index) => (
+                    <View key={index} style={styles.optionButton}>
+                      <Text style={styles.optionText}>{option}</Text>
+                    </View>
+                  ))}
+                </View>
+              </LinearGradient>
+            </BlurView>
+          </TouchableOpacity>
         </View>
 
         {/* Recent Achievements */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Achievements</Text>
+          <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Recent Achievements</Text>
           <View style={styles.achievementsContainer}>
             <BlurView intensity={15} style={styles.achievementCard}>
-              <View style={[styles.achievementIcon, { backgroundColor: "#10b981" }]}>
-                <Ionicons name="leaf" size={20} color="white" />
-              </View>
-              <View style={styles.achievementContent}>
-                <Text style={styles.achievementTitle}>Climate Expert</Text>
-                <Text style={styles.achievementDesc}>Completed Climate Basics</Text>
-              </View>
+              <LinearGradient colors={cardColors} style={styles.achievementGradient}>
+                <View style={[styles.achievementIcon, { backgroundColor: "#10b981" }]}>
+                  <Ionicons name="leaf" size={20} color="white" />
+                </View>
+                <View style={styles.achievementContent}>
+                  <Text style={[styles.achievementTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>
+                    Climate Expert
+                  </Text>
+                  <Text style={styles.achievementDesc}>Completed Climate Basics</Text>
+                </View>
+              </LinearGradient>
             </BlurView>
 
             <BlurView intensity={15} style={styles.achievementCard}>
-              <View style={[styles.achievementIcon, { backgroundColor: "#3b82f6" }]}>
-                <Ionicons name="flash" size={20} color="white" />
-              </View>
-              <View style={styles.achievementContent}>
-                <Text style={styles.achievementTitle}>Quick Learner</Text>
-                <Text style={styles.achievementDesc}>7-day learning streak</Text>
-              </View>
+              <LinearGradient colors={cardColors} style={styles.achievementGradient}>
+                <View style={[styles.achievementIcon, { backgroundColor: "#3b82f6" }]}>
+                  <Ionicons name="flash" size={20} color="white" />
+                </View>
+                <View style={styles.achievementContent}>
+                  <Text style={[styles.achievementTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>
+                    Quick Learner
+                  </Text>
+                  <Text style={styles.achievementDesc}>7-day learning streak</Text>
+                </View>
+              </LinearGradient>
             </BlurView>
           </View>
         </View>
@@ -193,19 +236,54 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 60,
   },
-  header: {
+  headerContainer: {
     paddingHorizontal: 30,
     marginBottom: 30,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 5,
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "white",
-    marginBottom: 5,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: "#9ca3af",
+  },
+  themeToggle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#374151",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  quickAccessContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 30,
+    marginBottom: 30,
+    gap: 10,
+  },
+  quickAccessCard: {
+    flex: 1,
+    borderRadius: 15,
+    overflow: "hidden",
+  },
+  quickAccessBlur: {
+    flex: 1,
+  },
+  quickAccessGradient: {
+    padding: 15,
+    alignItems: "center",
+  },
+  quickAccessText: {
+    fontSize: 12,
+    fontWeight: "600",
+    marginTop: 8,
+    textAlign: "center",
   },
   progressCard: {
     marginHorizontal: 30,
@@ -250,7 +328,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "white",
     marginHorizontal: 30,
     marginBottom: 15,
   },
@@ -369,9 +446,14 @@ const styles = StyleSheet.create({
   achievementCard: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
     borderRadius: 15,
     overflow: "hidden",
+  },
+  achievementGradient: {
+    padding: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
   },
   achievementIcon: {
     width: 40,
@@ -387,7 +469,6 @@ const styles = StyleSheet.create({
   achievementTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "white",
   },
   achievementDesc: {
     fontSize: 12,

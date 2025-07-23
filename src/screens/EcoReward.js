@@ -1,280 +1,122 @@
-"use client"
-
-import { useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
-import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
+import { useAppContext } from "../../App"
 
-const EcoRewards = () => {
-  const [ecoPoints, setEcoPoints] = useState(1250)
-  const [redeemedRewards, setRedeemedRewards] = useState([])
+const { width } = Dimensions.get("window")
 
-  const rewardCategories = [
+const EcoRewards = ({ navigation }) => {
+  const { isDarkMode, ecoPoints, toggleTheme, user } = useAppContext()
+
+  const quickActions = [
     {
-      id: "products",
-      title: "Eco-Friendly Products",
-      icon: "leaf",
+      title: "Rewards Dashboard",
+      description: "View your rewards overview",
+      icon: "trophy",
       color: "#10b981",
-      rewards: [
-        {
-          id: 1,
-          name: "Bamboo Water Bottle",
-          points: 500,
-          description: "Sustainable bamboo fiber bottle",
-          icon: "water",
-          inStock: true,
-        },
-        {
-          id: 2,
-          name: "Organic Cotton Tote Bag",
-          points: 300,
-          description: "Reusable shopping bag",
-          icon: "bag",
-          inStock: true,
-        },
-        {
-          id: 3,
-          name: "Solar Power Bank",
-          points: 800,
-          description: "Portable solar charger",
-          icon: "battery-charging",
-          inStock: false,
-        },
-      ],
+      screen: "RewardsDashboard",
     },
     {
-      id: "donations",
-      title: "Environmental Donations",
-      icon: "heart",
-      color: "#ef4444",
-      rewards: [
-        {
-          id: 4,
-          name: "Plant a Tree",
-          points: 100,
-          description: "Fund tree planting initiatives",
-          icon: "leaf",
-          inStock: true,
-        },
-        {
-          id: 5,
-          name: "Ocean Cleanup",
-          points: 200,
-          description: "Support marine plastic removal",
-          icon: "water",
-          inStock: true,
-        },
-        {
-          id: 6,
-          name: "Wildlife Protection",
-          points: 500,
-          description: "Protect endangered species",
-          icon: "paw",
-          inStock: true,
-        },
-      ],
-    },
-    {
-      id: "experiences",
-      title: "Eco Experiences",
-      icon: "compass",
+      title: "Marketplace",
+      description: "Browse available rewards",
+      icon: "storefront",
       color: "#3b82f6",
-      rewards: [
-        {
-          id: 7,
-          name: "Organic Farm Visit",
-          points: 1000,
-          description: "Educational farm experience",
-          icon: "flower",
-          inStock: true,
-        },
-        {
-          id: 8,
-          name: "Zero Waste Workshop",
-          points: 800,
-          description: "Learn sustainable living",
-          icon: "school",
-          inStock: true,
-        },
-        {
-          id: 9,
-          name: "Nature Photography Tour",
-          points: 1200,
-          description: "Guided eco-photography",
-          icon: "camera",
-          inStock: false,
-        },
-      ],
+      screen: "RewardMarketplace",
+    },
+    {
+      title: "Environmental Impact",
+      description: "See your eco impact",
+      icon: "earth",
+      color: "#22c55e",
+      screen: "EnvironmentalImpact",
     },
   ]
 
-  const impactStats = {
-    co2Reduced: 45.7,
-    waterSaved: 1250,
-    plasticAvoided: 23,
-    treesPlanted: 8,
-  }
-
-  const handleRewardRedeem = (reward) => {
-    if (ecoPoints >= reward.points && reward.inStock) {
-      Alert.alert("Redeem Reward", `Redeem ${reward.name} for ${reward.points} Eco Points?`, [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Redeem",
-          onPress: () => {
-            setEcoPoints((prev) => prev - reward.points)
-            setRedeemedRewards((prev) => [...prev, reward.id])
-            Alert.alert("Success!", `${reward.name} has been redeemed!`)
-          },
-        },
-      ])
-    } else if (!reward.inStock) {
-      Alert.alert("Out of Stock", "This reward is currently unavailable.")
-    } else {
-      Alert.alert("Insufficient Points", "You need more Eco Points to redeem this reward.")
-    }
-  }
-
-  const renderRewardCard = (reward, categoryColor) => {
-    const isRedeemed = redeemedRewards.includes(reward.id)
-    const canAfford = ecoPoints >= reward.points
-
-    return (
-      <TouchableOpacity
-        key={reward.id}
-        style={[styles.rewardCard, !reward.inStock && styles.outOfStockCard, isRedeemed && styles.redeemedCard]}
-        onPress={() => !isRedeemed && handleRewardRedeem(reward)}
-        activeOpacity={0.8}
-      >
-        <BlurView intensity={20} style={styles.rewardBlur}>
-          <LinearGradient
-            colors={isRedeemed ? ["#6b728020", "#4b5563"] : [`${categoryColor}20`, `${categoryColor}10`]}
-            style={styles.rewardGradient}
-          >
-            <View style={styles.rewardHeader}>
-              <View
-                style={[
-                  styles.rewardIcon,
-                  {
-                    backgroundColor: isRedeemed ? "#6b7280" : !reward.inStock ? "#ef4444" : categoryColor,
-                  },
-                ]}
-              >
-                <Ionicons
-                  name={isRedeemed ? "checkmark" : !reward.inStock ? "close" : reward.icon}
-                  size={20}
-                  color="white"
-                />
-              </View>
-              <View style={styles.rewardInfo}>
-                <Text style={styles.rewardName}>{reward.name}</Text>
-                <Text style={styles.rewardDescription}>{reward.description}</Text>
-              </View>
-              <View style={styles.rewardPrice}>
-                <Text style={[styles.rewardPoints, !canAfford && !isRedeemed && styles.insufficientPoints]}>
-                  {reward.points}
-                </Text>
-                <Text style={styles.pointsLabel}>points</Text>
-              </View>
-            </View>
-            {!reward.inStock && (
-              <View style={styles.outOfStockBadge}>
-                <Text style={styles.outOfStockText}>Out of Stock</Text>
-              </View>
-            )}
-            {isRedeemed && (
-              <View style={styles.redeemedBadge}>
-                <Ionicons name="checkmark-circle" size={16} color="#10b981" />
-                <Text style={styles.redeemedText}>Redeemed</Text>
-              </View>
-            )}
-          </LinearGradient>
-        </BlurView>
-      </TouchableOpacity>
-    )
-  }
-
-  const renderCategory = (category) => (
-    <View key={category.id} style={styles.categorySection}>
-      <View style={styles.categoryHeader}>
-        <View style={[styles.categoryIcon, { backgroundColor: category.color }]}>
-          <Ionicons name={category.icon} size={24} color="white" />
-        </View>
-        <Text style={styles.categoryTitle}>{category.title}</Text>
-      </View>
-      {category.rewards.map((reward) => renderRewardCard(reward, category.color))}
-    </View>
-  )
+  const recentRewards = [
+    { id: 1, title: "Tree Planting Certificate", points: 500, status: "Redeemed" },
+    { id: 2, title: "Eco Water Bottle", points: 300, status: "Shipped" },
+    { id: 3, title: "Solar Charger Discount", points: 200, status: "Used" },
+  ]
 
   return (
-    <LinearGradient colors={["#0f172a", "#1e293b", "#334155"]} style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Eco Rewards</Text>
-          <Text style={styles.headerSubtitle}>Redeem points for eco-friendly rewards</Text>
+    <View style={[styles.container, { backgroundColor: isDarkMode ? "#0f172a" : "#f8fafc" }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+            <Text style={styles.avatar}>{user?.avatar || "🌱"}</Text>
+          </TouchableOpacity>
+          <View>
+            <Text style={[styles.greeting, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+              Hello, {user?.name || "Eco Warrior"}
+            </Text>
+            <Text style={[styles.title, { color: isDarkMode ? "white" : "black" }]}>Eco Rewards</Text>
+          </View>
+        </View>
+        <View style={styles.headerRight}>
+          <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
+            <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color={isDarkMode ? "#fbbf24" : "#6366f1"} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
+            <Ionicons name="settings-outline" size={24} color={isDarkMode ? "white" : "black"} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Points Overview */}
+        <LinearGradient colors={isDarkMode ? ["#1e293b", "#334155"] : ["#ffffff", "#f1f5f9"]} style={styles.pointsCard}>
+          <View style={styles.pointsHeader}>
+            <Ionicons name="trophy" size={32} color="#10b981" />
+            <Text style={[styles.pointsTitle, { color: isDarkMode ? "white" : "black" }]}>Your EcoPoints</Text>
+          </View>
+          <Text style={[styles.pointsValue, { color: isDarkMode ? "white" : "black" }]}>
+            {ecoPoints.toLocaleString()}
+          </Text>
+          <Text style={[styles.pointsSubtext, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+            Keep earning points by completing eco-friendly actions!
+          </Text>
+        </LinearGradient>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "black" }]}>Quick Actions</Text>
+          <View style={styles.actionsGrid}>
+            {quickActions.map((action, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[styles.actionCard, { backgroundColor: isDarkMode ? "#1e293b" : "white" }]}
+                onPress={() => navigation.navigate(action.screen)}
+              >
+                <View style={[styles.actionIcon, { backgroundColor: action.color }]}>
+                  <Ionicons name={action.icon} size={24} color="white" />
+                </View>
+                <Text style={[styles.actionTitle, { color: isDarkMode ? "white" : "black" }]}>{action.title}</Text>
+                <Text style={[styles.actionDescription, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+                  {action.description}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
-        {/* Points Balance */}
-        <BlurView intensity={30} style={styles.balanceCard}>
-          <LinearGradient colors={["#10b98120", "#059669"]} style={styles.balanceGradient}>
-            <View style={styles.balanceHeader}>
-              <Ionicons name="wallet" size={24} color="#10b981" />
-              <Text style={styles.balanceTitle}>Your Eco Points</Text>
-            </View>
-            <Text style={styles.balanceAmount}>{ecoPoints.toLocaleString()}</Text>
-            <Text style={styles.balanceSubtext}>Available for redemption</Text>
-          </LinearGradient>
-        </BlurView>
-
-        {/* Environmental Impact */}
-        <BlurView intensity={20} style={styles.impactCard}>
-          <LinearGradient colors={["#3b82f620", "#1d4ed8"]} style={styles.impactGradient}>
-            <View style={styles.impactHeader}>
-              <Ionicons name="earth" size={24} color="#3b82f6" />
-              <Text style={styles.impactTitle}>Your Environmental Impact</Text>
-            </View>
-            <View style={styles.impactStats}>
-              <View style={styles.impactItem}>
-                <Text style={styles.impactValue}>{impactStats.co2Reduced} kg</Text>
-                <Text style={styles.impactLabel}>CO2 Reduced</Text>
-              </View>
-              <View style={styles.impactItem}>
-                <Text style={styles.impactValue}>{impactStats.waterSaved} L</Text>
-                <Text style={styles.impactLabel}>Water Saved</Text>
-              </View>
-              <View style={styles.impactItem}>
-                <Text style={styles.impactValue}>{impactStats.plasticAvoided}</Text>
-                <Text style={styles.impactLabel}>Plastic Items Avoided</Text>
-              </View>
-              <View style={styles.impactItem}>
-                <Text style={styles.impactValue}>{impactStats.treesPlanted}</Text>
-                <Text style={styles.impactLabel}>Trees Planted</Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </BlurView>
-
-        {/* Reward Categories */}
-        {rewardCategories.map(renderCategory)}
-
-        {/* Recent Redemptions */}
-        {redeemedRewards.length > 0 && (
-          <View style={styles.recentSection}>
-            <Text style={styles.sectionTitle}>Recent Redemptions</Text>
-            <BlurView intensity={15} style={styles.recentCard}>
-              <View style={styles.recentContent}>
-                <Ionicons name="checkmark-circle" size={24} color="#10b981" />
-                <Text style={styles.recentText}>
-                  You've redeemed {redeemedRewards.length} reward{redeemedRewards.length > 1 ? "s" : ""} this month!
+        {/* Recent Activity */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "black" }]}>Recent Activity</Text>
+          {recentRewards.map((reward) => (
+            <View key={reward.id} style={[styles.rewardItem, { backgroundColor: isDarkMode ? "#1e293b" : "white" }]}>
+              <View style={styles.rewardInfo}>
+                <Text style={[styles.rewardTitle, { color: isDarkMode ? "white" : "black" }]}>{reward.title}</Text>
+                <Text style={[styles.rewardStatus, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+                  {reward.status}
                 </Text>
               </View>
-            </BlurView>
-          </View>
-        )}
+              <Text style={[styles.rewardPoints, { color: "#10b981" }]}>{reward.points} pts</Text>
+            </View>
+          ))}
+        </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   )
 }
 
@@ -282,225 +124,140 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
-    paddingTop: 60,
-  },
   header: {
-    paddingHorizontal: 30,
-    marginBottom: 30,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 5,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: "#9ca3af",
-  },
-  balanceCard: {
-    marginHorizontal: 30,
-    marginBottom: 30,
-    borderRadius: 20,
-    overflow: "hidden",
-  },
-  balanceGradient: {
-    padding: 30,
-    alignItems: "center",
-  },
-  balanceHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  balanceTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-    marginLeft: 10,
-  },
-  balanceAmount: {
-    fontSize: 48,
-    fontWeight: "bold",
-    color: "#10b981",
-    marginBottom: 5,
-  },
-  balanceSubtext: {
-    fontSize: 14,
-    color: "#9ca3af",
-  },
-  impactCard: {
-    marginHorizontal: 30,
-    marginBottom: 30,
-    borderRadius: 20,
-    overflow: "hidden",
-  },
-  impactGradient: {
-    padding: 20,
-  },
-  impactHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  impactTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-    marginLeft: 10,
-  },
-  impactStats: {
     flexDirection: "row",
     justifyContent: "space-between",
-    flexWrap: "wrap",
-  },
-  impactItem: {
     alignItems: "center",
-    width: "48%",
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatar: {
+    fontSize: 40,
+    marginRight: 15,
+  },
+  greeting: {
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 15,
+  },
+  themeButton: {
+    padding: 8,
+  },
+  pointsCard: {
+    margin: 20,
+    padding: 25,
+    borderRadius: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  pointsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  pointsTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
+  pointsValue: {
+    fontSize: 36,
+    fontWeight: "bold",
     marginBottom: 10,
   },
-  impactValue: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#3b82f6",
-  },
-  impactLabel: {
-    fontSize: 12,
-    color: "#9ca3af",
-    marginTop: 5,
+  pointsSubtext: {
+    fontSize: 14,
     textAlign: "center",
   },
-  categorySection: {
-    marginBottom: 30,
-  },
-  categoryHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 30,
-    marginBottom: 15,
-  },
-  categoryIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 15,
-  },
-  categoryTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-  },
-  rewardCard: {
-    marginHorizontal: 30,
-    marginBottom: 15,
-    borderRadius: 15,
-    overflow: "hidden",
-  },
-  outOfStockCard: {
-    opacity: 0.6,
-  },
-  redeemedCard: {
-    opacity: 0.8,
-  },
-  rewardBlur: {
-    flex: 1,
-  },
-  rewardGradient: {
-    padding: 20,
-  },
-  rewardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  rewardIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 15,
-  },
-  rewardInfo: {
-    flex: 1,
-  },
-  rewardName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 5,
-  },
-  rewardDescription: {
-    fontSize: 14,
-    color: "#d1d5db",
-  },
-  rewardPrice: {
-    alignItems: "flex-end",
-  },
-  rewardPoints: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#10b981",
-  },
-  insufficientPoints: {
-    color: "#ef4444",
-  },
-  pointsLabel: {
-    fontSize: 12,
-    color: "#9ca3af",
-  },
-  outOfStockBadge: {
-    backgroundColor: "#ef4444",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: "flex-start",
-    marginTop: 10,
-  },
-  outOfStockText: {
-    fontSize: 12,
-    color: "white",
-    fontWeight: "bold",
-  },
-  redeemedBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  redeemedText: {
-    fontSize: 12,
-    color: "#10b981",
-    marginLeft: 5,
-    fontWeight: "bold",
-  },
-  recentSection: {
+  section: {
+    paddingHorizontal: 20,
     marginBottom: 30,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "white",
-    marginHorizontal: 30,
     marginBottom: 15,
   },
-  recentCard: {
-    marginHorizontal: 30,
-    borderRadius: 15,
-    overflow: "hidden",
+  actionsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
-  recentContent: {
+  actionCard: {
+    width: (width - 60) / 2,
+    padding: 20,
+    borderRadius: 15,
+    marginBottom: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  actionIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 15,
+  },
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  actionDescription: {
+    fontSize: 12,
+    textAlign: "center",
+    lineHeight: 16,
+  },
+  rewardItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 20,
+    justifyContent: "space-between",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  recentText: {
-    fontSize: 14,
-    color: "white",
-    marginLeft: 15,
+  rewardInfo: {
     flex: 1,
+  },
+  rewardTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  rewardStatus: {
+    fontSize: 14,
+  },
+  rewardPoints: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 })
 
