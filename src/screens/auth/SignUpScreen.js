@@ -72,11 +72,11 @@ const SignUpScreen = ({ navigation }) => {
         ecoPoints: 100,
       };
       await login(userData);
-      navigation.navigate("Home"); // Navigate to HomeScreen after sign-up
+      navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to Home tab after sign-up
       Alert.alert(
         "Welcome to EcoStep! 🎉",
         "Your account has been created successfully. Start your eco-friendly journey today!",
-        [{ text: "Get Started", onPress: () => navigation.navigate("Home") }]
+        [{ text: "Get Started", onPress: () => navigation.navigate("MainTabs", { screen: "Home" }) }]
       );
     } catch (error) {
       Alert.alert("Registration Failed", "There was an error creating your account. Please try again.");

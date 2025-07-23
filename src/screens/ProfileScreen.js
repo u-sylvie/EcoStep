@@ -18,7 +18,10 @@ const ProfileScreen = ({ navigation }) => {
       {
         text: "Logout",
         style: "destructive",
-        onPress: logout,
+        onPress: () => {
+          logout();
+          navigation.navigate("Auth", { screen: "Login" });
+        },
       },
     ])
   }
@@ -61,15 +64,11 @@ const ProfileScreen = ({ navigation }) => {
         </View>
 
         {/* Profile Card */}
-        <BlurView intensity={20} style={styles.profileCard}>
+        <BlurView intensity={30} style={styles.profileCard} tint={isDarkMode ? "dark" : "light"}>
           <LinearGradient colors={cardColors} style={styles.profileGradient}>
             <View style={styles.avatarContainer}>
-              <Text style={styles.avatar}>{user?.avatar || "🌱"}</Text>
-              <TouchableOpacity style={styles.editAvatarButton}>
-                <Ionicons name="camera" size={16} color="white" />
-              </TouchableOpacity>
+              <Ionicons name="person-circle-outline" size={60} color={isDarkMode ? "#fff" : "#1f2937"} />
             </View>
-
             <View style={styles.profileInfo}>
               {isEditing ? (
                 <TextInput
@@ -84,7 +83,6 @@ const ProfileScreen = ({ navigation }) => {
               <Text style={styles.userEmail}>{user?.email}</Text>
               <Text style={styles.userLevel}>{user?.level || "Eco Beginner"}</Text>
             </View>
-
             <TouchableOpacity
               style={styles.editButton}
               onPress={isEditing ? handleSaveProfile : () => setIsEditing(true)}
@@ -99,7 +97,7 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Your Impact</Text>
           <View style={styles.statsGrid}>
             {stats.map((stat, index) => (
-              <BlurView key={index} intensity={15} style={styles.statCard}>
+              <BlurView key={index} intensity={15} style={styles.statCard} tint={isDarkMode ? "dark" : "light"}>
                 <LinearGradient colors={cardColors} style={styles.statGradient}>
                   <Ionicons name={stat.icon} size={24} color="#10b981" />
                   <Text style={[styles.statValue, { color: isDarkMode ? "white" : "#1f2937" }]}>{stat.value}</Text>
@@ -114,7 +112,7 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Achievements</Text>
           {achievements.map((achievement) => (
-            <BlurView key={achievement.id} intensity={15} style={styles.achievementCard}>
+            <BlurView key={achievement.id} intensity={15} style={styles.achievementCard} tint={isDarkMode ? "dark" : "light"}>
               <LinearGradient colors={cardColors} style={styles.achievementGradient}>
                 <View style={[styles.achievementIcon, { backgroundColor: achievement.color }]}>
                   <Ionicons name={achievement.icon} size={20} color="white" />
@@ -136,7 +134,7 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Account</Text>
 
           <TouchableOpacity style={styles.actionButton}>
-            <BlurView intensity={15} style={styles.actionBlur}>
+            <BlurView intensity={15} style={styles.actionBlur} tint={isDarkMode ? "dark" : "light"}>
               <LinearGradient colors={cardColors} style={styles.actionGradient}>
                 <Ionicons name="download-outline" size={20} color={isDarkMode ? "white" : "#1f2937"} />
                 <Text style={[styles.actionText, { color: isDarkMode ? "white" : "#1f2937" }]}>Export Data</Text>
@@ -146,7 +144,7 @@ const ProfileScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
-            <BlurView intensity={15} style={styles.actionBlur}>
+            <BlurView intensity={15} style={styles.actionBlur} tint={isDarkMode ? "dark" : "light"}>
               <LinearGradient colors={cardColors} style={styles.actionGradient}>
                 <Ionicons name="shield-outline" size={20} color={isDarkMode ? "white" : "#1f2937"} />
                 <Text style={[styles.actionText, { color: isDarkMode ? "white" : "#1f2937" }]}>Privacy Policy</Text>
@@ -156,7 +154,7 @@ const ProfileScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
-            <BlurView intensity={15} style={styles.actionBlur}>
+            <BlurView intensity={15} style={styles.actionBlur} tint={isDarkMode ? "dark" : "light"}>
               <LinearGradient colors={cardColors} style={styles.actionGradient}>
                 <Ionicons name="log-out-outline" size={20} color="#ef4444" />
                 <Text style={[styles.actionText, { color: "#ef4444" }]}>Logout</Text>

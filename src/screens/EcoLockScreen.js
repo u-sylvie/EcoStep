@@ -182,12 +182,12 @@ const EcoLockScreen = () => {
 
         {!user && (
           <View style={styles.authContainer}>
-            <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate("Login")}>
+            <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate("Auth", { screen: "Login" })}>
               <Text style={styles.authButtonText}>Sign In</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.authButton, styles.signUpButton]}
-              onPress={() => navigation.navigate("SignUp")}
+              onPress={() => navigation.navigate("Auth", { screen: "SignUp" })}
             >
               <Text style={styles.authButtonTextSecondary}>Sign Up</Text>
             </TouchableOpacity>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Animated } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
@@ -17,6 +17,8 @@ const QuizScreen = ({ navigation, route }) => {
   const [score, setScore] = useState(0)
   const [stars, setStars] = useState(0)
   const [fadeAnim] = useState(new Animated.Value(0))
+  const [timer, setTimer] = useState(15);
+  const timerRef = useRef();
 
   const quizData = quiz || {
     title: "Daily Climate Challenge",
@@ -56,9 +58,72 @@ const QuizScreen = ({ navigation, route }) => {
     }).start()
   }, [currentQuestion])
 
+  useEffect(() => {
+    setTimer(15);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          handleTimeUp();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [currentQuestion]);
+
   const handleAnswerSelect = (answerIndex) => {
     setSelectedAnswer(answerIndex)
   }
+
+  const handleTimeUp = () => {
+    if (selectedAnswer === null && !showResult) {
+      setShowResult(true);
+      setTimeout(() => {
+        if (currentQuestion < quizData.questions.length - 1) {
+          setCurrentQuestion(currentQuestion + 1);
+          setSelectedAnswer(null);
+          setShowResult(false);
+          fadeAnim.setValue(0);
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+          }).start();
+        } else {
+          // Quiz completed
+          const finalScore = score;
+          const percentage = (finalScore / quizData.questions.length) * 100;
+          let earnedStars = 0;
+          let pointsEarned = 0;
+
+          if (percentage >= 90) {
+            earnedStars = 3;
+            pointsEarned = 30;
+          } else if (percentage >= 70) {
+            earnedStars = 2;
+            pointsEarned = 20;
+          } else if (percentage >= 50) {
+            earnedStars = 1;
+            pointsEarned = 10;
+          }
+
+          setStars(earnedStars);
+          updateEcoPoints(ecoPoints + pointsEarned);
+
+          setTimeout(() => {
+            Alert.alert(
+              "Quiz Completed! 🎉",
+              `You scored ${finalScore}/${quizData.questions.length}\n⭐ ${earnedStars} stars earned\n🌱 +${pointsEarned} Eco Points`,
+              [{ text: "Continue", onPress: () => navigation.goBack() }],
+            );
+          }, 1000);
+        }
+      }, 2000);
+    }
+  };
 
   const handleNextQuestion = () => {
     if (selectedAnswer === null) {
@@ -131,7 +196,7 @@ const QuizScreen = ({ navigation, route }) => {
   const isCorrect = selectedAnswer === currentQ.correct
 
   return (
-    <LinearGradient colors={bgColors} style={styles.container}>
+    <LinearGradient colors={bgColors} style={[styles.container, { backgroundColor: isDarkMode ? undefined : "#f8fafc" }]}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={isDarkMode ? "white" : "#1f2937"} />
@@ -142,6 +207,14 @@ const QuizScreen = ({ navigation, route }) => {
             {currentQuestion + 1}/{quizData.questions.length}
           </Text>
         </View>
+      </View>
+
+      {/* Timer Bar */}
+      <View style={styles.timerBarContainer}>
+        <View style={styles.timerBarBg}>
+          <View style={[styles.timerBarFill, { width: `${(timer / 15) * 100}%` }]} />
+        </View>
+        <Text style={[styles.timerText, { color: isDarkMode ? "#fff" : "#1f2937" }]}>{timer}s</Text>
       </View>
 
       <View style={styles.progressBar}>
@@ -381,6 +454,31 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  timerBarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 30,
+    marginBottom: 10,
+  },
+  timerBarBg: {
+    flex: 1,
+    height: 8,
+    backgroundColor: "#e5e7eb",
+    borderRadius: 4,
+    marginRight: 10,
+    overflow: "hidden",
+  },
+  timerBarFill: {
+    height: "100%",
+    backgroundColor: "#10b981",
+    borderRadius: 4,
+  },
+  timerText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    minWidth: 40,
+    textAlign: "right",
   },
 })
 

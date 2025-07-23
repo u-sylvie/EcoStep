@@ -197,7 +197,8 @@ const MainStack = () => (
     <Stack.Screen name="SocialFeed" component={SocialFeed} />
     <Stack.Screen name="GroupChallenges" component={GroupChallenges} />
     <Stack.Screen name="MyGroups" component={MyGroups} />
-    <Stack.Screen name="Auth" component={AuthStack} /> {/* Added for navigation to AuthStack */}
+    <Stack.Screen name="Auth" component={AuthStack} />
+    <Stack.Screen name="ForgotPassword" component={require('./src/screens/auth/ForgotPasswordScreen').default} />
   </Stack.Navigator>
 );
 
