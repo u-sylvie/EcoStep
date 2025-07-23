@@ -66,7 +66,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
           <View style={styles.inputContainer}>
             <Ionicons name="mail-outline" size={20} color={isDarkMode ? "#9ca3af" : "#6b7280"} />
             <TextInput
-              style={[styles.input, { color: isDarkMode ? "#fff" : "#1f2937" }]}
+              style={[styles.input, { color: isDarkMode ? "#000" : "#1f2937" }]}
               placeholder="Email address"
               placeholderTextColor={isDarkMode ? "#9ca3af" : "#6b7280"}
               value={email}
@@ -80,7 +80,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
           <TouchableOpacity style={styles.sendButton} onPress={handleSendReset} disabled={isLoading}>
             <LinearGradient colors={["#10b981", "#059669"]} style={styles.sendButtonGradient}>
               {isLoading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color="#000" />
               ) : (
                 <Text style={styles.sendButtonText}>Send Reset Link</Text>
               )}
