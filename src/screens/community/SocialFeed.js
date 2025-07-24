@@ -1,13 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Share, Modal, Platform } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { useAppContext } from "../../../App"
 
 const SocialFeed = ({ navigation }) => {
   const { isDarkMode, user } = useAppContext()
   const [newPost, setNewPost] = useState("")
+  const [commentModalVisible, setCommentModalVisible] = useState(false);
+  const [commentPostId, setCommentPostId] = useState(null);
+  const [commentText, setCommentText] = useState("");
+  const [newImage, setNewImage] = useState(null);
+  const [newLocation, setNewLocation] = useState("");
 
   const posts = [
     {
@@ -74,11 +79,43 @@ const SocialFeed = ({ navigation }) => {
   }
 
   const handleComment = (postId) => {
-    Alert.alert("Comment", "Comment feature coming soon!")
+    setCommentPostId(postId);
+    setCommentModalVisible(true);
   }
 
-  const handleShare = (postId) => {
-    Alert.alert("Share", "Post shared successfully!")
+  const handleShare = async (postId) => {
+    const post = feedPosts.find((p) => p.id === postId);
+    try {
+      await Share.share({
+        message: `${post.user}: ${post.content}`,
+        title: "EcoStep Post",
+      });
+    } catch (e) {
+      Alert.alert("Error", "Could not share post.");
+    }
+  }
+
+  const handleAddComment = () => {
+    setFeedPosts(
+      feedPosts.map((post) =>
+        post.id === commentPostId
+          ? { ...post, comments: post.comments + 1 }
+          : post,
+      ),
+    );
+    setCommentText("");
+    setCommentModalVisible(false);
+  }
+
+  const handlePhoto = () => {
+    // Mock: just set an emoji as image
+    setNewImage(Platform.OS === "ios" ? "📷" : "🖼️");
+  }
+
+  const handleLocation = () => {
+    // Mock: just set a string
+    setNewLocation("Nairobi, Kenya");
+    Alert.alert("Location Added", "Nairobi, Kenya");
   }
 
   const handlePost = () => {
@@ -93,10 +130,13 @@ const SocialFeed = ({ navigation }) => {
         comments: 0,
         shares: 0,
         liked: false,
-        image: null,
+        image: newImage,
+        location: newLocation,
       }
       setFeedPosts([post, ...feedPosts])
       setNewPost("")
+      setNewImage(null)
+      setNewLocation("")
       Alert.alert("Success", "Post shared successfully!")
     }
   }
@@ -128,12 +168,18 @@ const SocialFeed = ({ navigation }) => {
               multiline
             />
           </View>
+          {newImage && (
+            <View style={styles.postImage}><Text style={styles.postImageEmoji}>{newImage}</Text></View>
+          )}
+          {newLocation ? (
+            <Text style={{ color: isDarkMode ? "#10b981" : "#059669", marginLeft: 10, marginBottom: 5 }}>📍 {newLocation}</Text>
+          ) : null}
           <View style={styles.createPostActions}>
-            <TouchableOpacity style={styles.postActionButton}>
+            <TouchableOpacity style={styles.postActionButton} onPress={handlePhoto}>
               <Ionicons name="camera-outline" size={20} color="#10b981" />
               <Text style={[styles.postActionText, { color: "#10b981" }]}>Photo</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.postActionButton}>
+            <TouchableOpacity style={styles.postActionButton} onPress={handleLocation}>
               <Ionicons name="location-outline" size={20} color="#3b82f6" />
               <Text style={[styles.postActionText, { color: "#3b82f6" }]}>Location</Text>
             </TouchableOpacity>
@@ -170,6 +216,9 @@ const SocialFeed = ({ navigation }) => {
                 <Text style={styles.postImageEmoji}>{post.image}</Text>
               </View>
             )}
+            {post.location && (
+              <Text style={{ color: isDarkMode ? "#10b981" : "#059669", marginLeft: 10, marginBottom: 5 }}>📍 {post.location}</Text>
+            )}
 
             <View style={styles.postActions}>
               <TouchableOpacity style={styles.actionButton} onPress={() => handleLike(post.id)}>
@@ -194,6 +243,28 @@ const SocialFeed = ({ navigation }) => {
           </View>
         ))}
       </ScrollView>
+
+      {/* Comment Modal */}
+      <Modal visible={commentModalVisible} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center" }}>
+          <View style={{ backgroundColor: "#fff", borderRadius: 20, padding: 30, width: 300 }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10, color: "#1f2937" }}>Add a Comment</Text>
+            <TextInput
+              style={{ borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 10, padding: 10, marginBottom: 15, minHeight: 60 }}
+              placeholder="Write your comment..."
+              value={commentText}
+              onChangeText={setCommentText}
+              multiline
+            />
+            <TouchableOpacity style={{ backgroundColor: "#10b981", borderRadius: 10, padding: 12, alignItems: "center" }} onPress={handleAddComment}>
+              <Text style={{ color: "#fff", fontWeight: "bold" }}>Post Comment</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginTop: 10, alignItems: "center" }} onPress={() => setCommentModalVisible(false)}>
+              <Text style={{ color: "#ef4444", fontWeight: "bold" }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }

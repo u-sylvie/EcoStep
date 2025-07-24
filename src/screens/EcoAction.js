@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
@@ -14,6 +14,9 @@ const EcoAction = () => {
   const navigation = useNavigation()
   const { isDarkMode, ecoPoints, updateEcoPoints } = useAppContext()
   const [completedActions, setCompletedActions] = useState([])
+  const [photoModalVisible, setPhotoModalVisible] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+  const [helpVisible, setHelpVisible] = useState(false);
 
   const actionCategories = [
     {
@@ -125,21 +128,12 @@ const EcoAction = () => {
 
   const handleActionComplete = (action) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-
-    Alert.alert("Verify Action", `Take a photo to verify: ${action.title}`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Take Photo",
-        onPress: () => openCamera(action),
-      },
-      {
-        text: "Choose from Gallery",
-        onPress: () => openImagePicker(action),
-      },
-    ])
+    setPendingAction(action);
+    setPhotoModalVisible(true);
   }
 
   const openCamera = async (action) => {
+    setPhotoModalVisible(false);
     Alert.alert("Take Photo", "Camera would open here in a real app", [
       { text: "Cancel", style: "cancel" },
       {
@@ -150,6 +144,7 @@ const EcoAction = () => {
   }
 
   const openImagePicker = async (action) => {
+    setPhotoModalVisible(false);
     Alert.alert("Choose Photo", "Gallery would open here in a real app", [
       { text: "Cancel", style: "cancel" },
       {
@@ -244,6 +239,42 @@ const EcoAction = () => {
 
   return (
     <LinearGradient colors={["#0f172a", "#1e293b", "#334155"]} style={styles.container}>
+      {/* Help Icon */}
+      <TouchableOpacity style={styles.helpIcon} onPress={() => setHelpVisible(true)}>
+        <Ionicons name="help-circle-outline" size={28} color="#10b981" />
+      </TouchableOpacity>
+      {/* Help Modal */}
+      <Modal visible={helpVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.helpModalContent}>
+            <Text style={styles.helpTitle}>How to Complete an Action</Text>
+            <Text style={styles.helpText}>Tap an action to verify it by taking a photo or choosing from your gallery. Earn points and track your eco impact!</Text>
+            <TouchableOpacity style={styles.closeHelpBtn} onPress={() => setHelpVisible(false)}>
+              <Text style={styles.closeHelpText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      {/* Photo Modal */}
+      <Modal visible={photoModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.photoModalContent}>
+            <Text style={styles.photoModalTitle}>Verify Action</Text>
+            <Text style={styles.photoModalDesc}>How would you like to verify "{pendingAction?.title}"?</Text>
+            <TouchableOpacity style={styles.photoOptionBtn} onPress={() => openCamera(pendingAction)}>
+              <Ionicons name="camera" size={24} color="#3b82f6" />
+              <Text style={styles.photoOptionText}>Take Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.photoOptionBtn} onPress={() => openImagePicker(pendingAction)}>
+              <Ionicons name="image" size={24} color="#10b981" />
+              <Text style={styles.photoOptionText}>Choose from Gallery</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closePhotoBtn} onPress={() => setPhotoModalVisible(false)}>
+              <Text style={styles.closePhotoText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -586,6 +617,93 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginTop: 8,
     textAlign: "center",
+  },
+  helpIcon: {
+    position: "absolute",
+    top: 60,
+    right: 30,
+    zIndex: 10,
+    backgroundColor: "rgba(16,185,129,0.1)",
+    borderRadius: 20,
+    padding: 6,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  photoModalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 30,
+    alignItems: "center",
+    width: 300,
+  },
+  photoModalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#1f2937",
+  },
+  photoModalDesc: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  photoOptionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f1f5f9",
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginBottom: 15,
+    width: 220,
+    justifyContent: "center",
+  },
+  photoOptionText: {
+    fontSize: 16,
+    color: "#1f2937",
+    marginLeft: 10,
+  },
+  closePhotoBtn: {
+    marginTop: 10,
+    padding: 10,
+  },
+  closePhotoText: {
+    color: "#ef4444",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  helpModalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 30,
+    alignItems: "center",
+    width: 300,
+  },
+  helpTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#1f2937",
+  },
+  helpText: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  closeHelpBtn: {
+    marginTop: 10,
+    padding: 10,
+  },
+  closeHelpText: {
+    color: "#10b981",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 })
 

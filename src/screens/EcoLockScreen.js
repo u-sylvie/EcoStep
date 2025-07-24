@@ -119,8 +119,9 @@ const EcoLockScreen = () => {
 
   const renderNewsCard = ({ item, index }) => {
     try {
+      if (!item) return null;
       return (
-        <TouchableOpacity key={item.id} style={styles.newsCard} onPress={() => handleCardPress(item)} activeOpacity={0.8}>
+        <TouchableOpacity key={item.id || index} style={styles.newsCard} onPress={() => handleCardPress(item)} activeOpacity={0.8}>
           <BlurView intensity={20} style={styles.cardBlur}>
             <LinearGradient colors={[`${item.color}20`, `${item.color}10`]} style={styles.cardGradient}>
               <View style={styles.cardHeader}>
@@ -218,17 +219,21 @@ const EcoLockScreen = () => {
 
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Today's Environmental Insights</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            decelerationRate="fast"
-            snapToInterval={width - 60}
-            contentInsetAdjustmentBehavior="automatic"
-            style={styles.newsScrollView}
-          >
-            {newsData.map((item, index) => renderNewsCard({ item, index }))}
-          </ScrollView>
+          {newsData && newsData.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              pagingEnabled
+              decelerationRate="fast"
+              snapToInterval={width - 60}
+              contentInsetAdjustmentBehavior="automatic"
+              style={styles.newsScrollView}
+            >
+              {newsData.map((item, index) => renderNewsCard({ item, index }))}
+            </ScrollView>
+          ) : (
+            <Text style={{ color: 'white', marginLeft: 30 }}>No insights available today.</Text>
+          )}
         </View>
 
         <View style={styles.sectionContainer}>

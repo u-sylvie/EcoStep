@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
@@ -12,6 +12,7 @@ const MissionCatalog = () => {
   const navigation = useNavigation()
   const { isDarkMode } = useAppContext()
   const [selectedFilter, setSelectedFilter] = useState("All")
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
 
   const filters = ["All", "Daily Life", "Food", "Transport"]
 
@@ -76,14 +77,34 @@ const MissionCatalog = () => {
 
   return (
     <LinearGradient colors={bgColors} style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      {/* Filter Modal */}
+      <Modal visible={filterModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.filterModalContent}>
+            <Text style={styles.filterModalTitle}>Select Category</Text>
+            {filters.map((filter) => (
+              <TouchableOpacity
+                key={filter}
+                style={[styles.filterModalOption, selectedFilter === filter && styles.activeFilterChip]}
+                onPress={() => { setSelectedFilter(filter); setFilterModalVisible(false); }}
+              >
+                <Text style={[styles.filterText, selectedFilter === filter && styles.activeFilterText]}>{filter}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.closeFilterBtn} onPress={() => setFilterModalVisible(false)}>
+              <Text style={styles.closeFilterText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color={isDarkMode ? "white" : "#1f2937"} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Mission Catalog</Text>
-          <TouchableOpacity style={styles.filterButton}>
+          <TouchableOpacity style={styles.filterButton} onPress={() => setFilterModalVisible(true)}>
             <Ionicons name="filter" size={24} color={isDarkMode ? "white" : "#1f2937"} />
           </TouchableOpacity>
         </View>
@@ -137,12 +158,16 @@ const MissionCatalog = () => {
         </View>
 
         {/* Start Mission Button */}
+        {/* The start button is now sticky at the bottom */}
+      </ScrollView>
+      {/* Sticky Start Mission Button */}
+      <View style={styles.stickyButtonContainer}>
         <TouchableOpacity style={styles.startButton}>
           <LinearGradient colors={["#10b981", "#059669"]} style={styles.startButtonGradient}>
             <Text style={styles.startButtonText}>Start Mission</Text>
           </LinearGradient>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </LinearGradient>
   )
 }
@@ -297,6 +322,53 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  filterModalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 30,
+    alignItems: "center",
+    width: 300,
+  },
+  filterModalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#1f2937",
+  },
+  filterModalOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginBottom: 10,
+    backgroundColor: "#f1f5f9",
+    width: 220,
+    alignItems: "center",
+  },
+  closeFilterBtn: {
+    marginTop: 10,
+    padding: 10,
+  },
+  closeFilterText: {
+    color: "#ef4444",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  stickyButtonContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255,255,255,0.7)",
+    paddingVertical: 10,
+    alignItems: "center",
+    zIndex: 10,
   },
 })
 
