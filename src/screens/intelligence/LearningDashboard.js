@@ -56,7 +56,7 @@ const LearningDashboard = () => {
 
   return (
     <LinearGradient colors={bgColors} style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 60,
   },
   header: {

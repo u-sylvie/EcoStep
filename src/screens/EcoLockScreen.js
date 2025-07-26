@@ -102,28 +102,30 @@ const EcoLockScreen = () => {
 
   const handleCardPress = (item) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (item.type === "Quiz") {
-      navigation.navigate("Quiz", { quiz: { title: item.title, questions: [] } });
+    if (item.type === "QuizScreen") {
+      navigation.navigate("QuizScreen", { quiz: { title: item.title, questions: [] } });
     } else {
       navigation.navigate("NewsDetails", { newsItem: item });
       updateEcoPoints(ecoPoints + item.points);
     }
   };
 
-  const handleTaskPress = (task) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    updateEcoPoints((prev) => prev + task.points);
-    // Show feedback
-    alert(`Action completed: ${task.title}\n+${task.points} Eco Points!`);
-  };
 
   const renderNewsCard = ({ item, index }) => {
     try {
       if (!item) return null;
       return (
-        <TouchableOpacity key={item.id || index} style={styles.newsCard} onPress={() => handleCardPress(item)} activeOpacity={0.8}>
+        <TouchableOpacity
+          key={item.id || index}
+          style={styles.newsCard}
+          onPress={() => handleCardPress(item)}
+          activeOpacity={0.8}
+        >
           <BlurView intensity={20} style={styles.cardBlur}>
-            <LinearGradient colors={[`${item.color}20`, `${item.color}10`]} style={styles.cardGradient}>
+            <LinearGradient
+              colors={[`${item.color}30`, `${item.color}15`]}
+              style={styles.cardGradient}
+            >
               <View style={styles.cardHeader}>
                 <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
                   <Ionicons name={item.icon} size={24} color="white" />
@@ -145,20 +147,53 @@ const EcoLockScreen = () => {
     }
   };
 
+  const handleTaskPress = (task) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    // Navigate to appropriate screen based on task
+    switch(task.title) {
+      case "Use Reusable Water Bottle":
+        navigation.navigate("EcoAction", { actionType: "water" });
+        break;
+      case "Take Public Transport":
+        navigation.navigate("EcoAction", { actionType: "transport" });
+        break;
+      case "Zero Waste Shopping":
+        navigation.navigate("EcoAction", { actionType: "shopping" });
+        break;
+      default:
+        // For any other tasks
+        navigation.navigate("EcoAction");
+    }
+    
+    // Award points
+    updateEcoPoints(ecoPoints + task.points);
+  };
+
   const renderTaskCard = ({ item }) => {
     return (
-      <TouchableOpacity key={item.id} style={styles.taskCard} onPress={() => handleTaskPress(item)} activeOpacity={0.8}>
+      <TouchableOpacity
+        key={item.id}
+        style={styles.taskCard}
+        onPress={() => handleTaskPress(item)}
+        activeOpacity={0.8}
+      >
         <BlurView intensity={15} style={styles.taskBlur}>
-          <View style={[styles.taskIconContainer, { backgroundColor: item.color }]}>
-            <Ionicons name={item.icon} size={20} color="white" />
-          </View>
-          <View style={styles.taskContent}>
-            <Text style={styles.taskTitle}>{item.title}</Text>
-            <Text style={styles.taskDifficulty}>{item.difficulty}</Text>
-          </View>
-          <View style={styles.taskPoints}>
-            <Text style={styles.taskPointsText}>+{item.points}</Text>
-          </View>
+          <LinearGradient
+            colors={["#1f293720", "#374151"]}
+            style={styles.taskGradient}
+          >
+            <View style={[styles.taskIconContainer, { backgroundColor: item.color }]}>
+              <Ionicons name={item.icon} size={20} color="white" />
+            </View>
+            <View style={styles.taskContent}>
+              <Text style={styles.taskTitle}>{item.title}</Text>
+              <Text style={styles.taskDifficulty}>{item.difficulty}</Text>
+            </View>
+            <View style={styles.taskPoints}>
+              <Text style={styles.taskPointsText}>+{item.points}</Text>
+            </View>
+          </LinearGradient>
         </BlurView>
       </TouchableOpacity>
     );
@@ -190,12 +225,12 @@ const EcoLockScreen = () => {
 
         {!user && (
           <View style={styles.authContainer}>
-            <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate("Auth", { screen: "Login" })}>
+            <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate("Login")}>
               <Text style={styles.authButtonText}>Sign In</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.authButton, styles.signUpButton]}
-              onPress={() => navigation.navigate("Auth", { screen: "SignUp" })}
+              onPress={() => navigation.navigate("SignUp")}
             >
               <Text style={styles.authButtonTextSecondary}>Sign Up</Text>
             </TouchableOpacity>
@@ -206,6 +241,12 @@ const EcoLockScreen = () => {
           <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate("Profile")}>
             <Text style={styles.profileAvatar}>{user.avatar}</Text>
             <Text style={styles.profileName}>{user.name}</Text>
+          </TouchableOpacity>
+        )}
+
+        {user && (
+          <TouchableOpacity style={styles.unlockButton} onPress={() => navigation.navigate("MainTabs")}> 
+            <Text style={styles.unlockButtonText}>Unlock App</Text>
           </TouchableOpacity>
         )}
 
@@ -287,7 +328,7 @@ const styles = StyleSheet.create({
     borderRadius: 1,
   },
   scrollView: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 60,
   },
   timeContainer: {
@@ -406,6 +447,12 @@ const styles = StyleSheet.create({
   },
   taskBlur: {
     flex: 1,
+    overflow: "hidden",
+  },
+  taskGradient: {
+    padding: 15,
+    flexDirection: "row",
+    alignItems: "center",
   },
   taskIconContainer: {
     width: 32,
@@ -546,6 +593,19 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "600",
+  },
+  unlockButton: {
+    marginHorizontal: 30,
+    marginBottom: 20,
+    borderRadius: 15,
+    backgroundColor: '#10b981',
+    alignItems: 'center',
+    paddingVertical: 15,
+  },
+  unlockButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

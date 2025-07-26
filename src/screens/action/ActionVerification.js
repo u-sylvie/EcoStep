@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native"
+import { useState, useEffect } from "react"
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Dimensions, Image } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
 import { useAppContext } from "../../../App"
+import * as ImagePicker from 'expo-image-picker';
 
 const ActionVerification = ({ route }) => {
   const navigation = useNavigation()
@@ -14,6 +15,9 @@ const ActionVerification = ({ route }) => {
   const { mission } = route.params || {}
 
   const [photoTaken, setPhotoTaken] = useState(false)
+  const [photoSource, setPhotoSource] = useState(null)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const { width } = Dimensions.get('window')
 
   const missionData = mission || {
     title: "Use Reusable Cup",
@@ -27,34 +31,62 @@ const ActionVerification = ({ route }) => {
   const cardColors = isDarkMode ? ["#374151", "#1f2937"] : ["#ffffff", "#f1f5f9"]
 
   const handleTakePhoto = async () => {
-    Alert.alert("Take Photo", "Camera functionality would open here in a real app", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Simulate Photo",
-        onPress: () => {
-          setPhotoTaken(true)
-          setTimeout(() => {
-            navigation.navigate("MissionComplete", { mission: missionData })
-          }, 1000)
-        },
-      },
-    ])
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permissionResult.granted) {
+      alert("Permission to access camera is required!");
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setPhotoSource(result.assets[0].uri);
+      setPhotoTaken(true);
+      setIsProcessing(false);
+      Alert.alert(
+        "Photo Captured",
+        "Your photo has been successfully captured and is being verified.",
+        [{ text: "OK" }]
+      );
+    }
   }
 
   const handleUploadFromGallery = async () => {
-    Alert.alert("Upload Photo", "Gallery functionality would open here in a real app", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Simulate Upload",
-        onPress: () => {
-          setPhotoTaken(true)
-          setTimeout(() => {
-            navigation.navigate("MissionComplete", { mission: missionData })
-          }, 1000)
-        },
-      },
-    ])
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      alert("Permission to access gallery is required!");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setPhotoSource(result.assets[0].uri);
+      setPhotoTaken(true);
+      setIsProcessing(false);
+      Alert.alert(
+        "Photo Selected",
+        "Your photo has been successfully selected and is being verified.",
+        [{ text: "OK" }]
+      );
+    }
   }
+  
+  // Add verification and completion logic
+  useEffect(() => {
+    if (photoTaken && photoSource) {
+      // Simulate AI verification process
+      const verificationTimer = setTimeout(() => {
+        navigation.navigate("MissionComplete", { mission: missionData });
+      }, 3000);
+      
+      return () => clearTimeout(verificationTimer);
+    }
+  }, [photoTaken, photoSource]);
 
   return (
     <LinearGradient colors={bgColors} style={styles.container}>
@@ -64,12 +96,19 @@ const ActionVerification = ({ route }) => {
           <Ionicons name="arrow-back" size={24} color={isDarkMode ? "white" : "#1f2937"} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>{missionData.title}</Text>
-        <TouchableOpacity style={styles.helpButton}>
+        <TouchableOpacity
+          style={styles.helpButton}
+          onPress={() => Alert.alert(
+            "How to Complete This Action",
+            "1. Take a clear photo of your reusable cup being used\n2. Make sure the cup is visible in the frame\n3. Our AI will verify your action automatically\n4. You'll earn eco points upon verification",
+            [{ text: "Got it!" }]
+          )}
+        >
           <Ionicons name="help-circle-outline" size={24} color={isDarkMode ? "white" : "#1f2937"} />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView style={styles.content}>
         {/* Mission Info */}
         <BlurView intensity={20} style={styles.missionCard}>
           <LinearGradient colors={cardColors} style={styles.missionGradient}>
@@ -86,12 +125,25 @@ const ActionVerification = ({ route }) => {
           <LinearGradient colors={cardColors} style={styles.photoGradient}>
             <Text style={[styles.photoTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Take a Photo</Text>
             <Text style={styles.photoSubtitle}>Show your reusable cup at a café or coffee shop</Text>
+            <Text style={styles.simulationNote}>This is a simulation. In a real app, your camera would open here.</Text>
 
             <View style={styles.photoArea}>
-              {photoTaken ? (
-                <View style={styles.photoTaken}>
-                  <Ionicons name="checkmark-circle" size={64} color="#10b981" />
-                  <Text style={styles.photoTakenText}>Photo Captured!</Text>
+              {isProcessing ? (
+                <View style={styles.photoProcessing}>
+                  <Ionicons name="sync" size={64} color="#3b82f6" />
+                  <Text style={styles.photoProcessingText}>Processing...</Text>
+                </View>
+              ) : photoTaken && photoSource ? (
+                <View style={styles.photoContainer}>
+                  <Image
+                    source={{ uri: photoSource }}
+                    style={styles.photoImage}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.photoOverlay}>
+                    <Ionicons name="checkmark-circle" size={40} color="#10b981" />
+                    <Text style={styles.photoTakenText}>Verified!</Text>
+                  </View>
                 </View>
               ) : (
                 <View style={styles.photoPlaceholder}>
@@ -129,14 +181,25 @@ const ActionVerification = ({ route }) => {
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.takePhotoButton} onPress={handleTakePhoto}>
-            <LinearGradient colors={["#10b981", "#059669"]} style={styles.takePhotoGradient}>
+          <TouchableOpacity
+            style={[styles.takePhotoButton, isProcessing && styles.disabledButton]}
+            onPress={handleTakePhoto}
+            disabled={isProcessing}
+          >
+            <LinearGradient
+              colors={["#10b981", "#059669"]}
+              style={styles.takePhotoGradient}
+            >
               <Ionicons name="camera" size={24} color="white" />
               <Text style={styles.takePhotoText}>Take Photo</Text>
             </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.uploadButton} onPress={handleUploadFromGallery}>
+          <TouchableOpacity
+            style={[styles.uploadButton, isProcessing && styles.disabledButton]}
+            onPress={handleUploadFromGallery}
+            disabled={isProcessing}
+          >
             <BlurView intensity={15} style={styles.uploadBlur}>
               <LinearGradient colors={cardColors} style={styles.uploadGradient}>
                 <Ionicons name="image" size={24} color={isDarkMode ? "white" : "#1f2937"} />
@@ -147,7 +210,7 @@ const ActionVerification = ({ route }) => {
             </BlurView>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </LinearGradient>
   )
 }
@@ -237,8 +300,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
+  simulationNote: {
+    fontSize: 12,
+    color: "#f59e0b",
+    textAlign: "center",
+    marginBottom: 10,
+  },
   photoArea: {
-    height: 200,
+    height: 250,
     borderRadius: 15,
     backgroundColor: "#374151",
     alignItems: "center",
@@ -246,6 +315,26 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#4b5563",
     borderStyle: "dashed",
+    overflow: "hidden",
+  },
+  photoContainer: {
+    width: "100%",
+    height: "100%",
+    position: "relative",
+  },
+  photoImage: {
+    width: "100%",
+    height: "100%",
+  },
+  photoOverlay: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: 12,
+    padding: 8,
+    flexDirection: "row",
+    alignItems: "center",
   },
   photoPlaceholder: {
     alignItems: "center",
@@ -255,14 +344,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 10,
   },
-  photoTaken: {
+  photoProcessing: {
     alignItems: "center",
   },
-  photoTakenText: {
-    color: "#10b981",
+  photoProcessingText: {
+    color: "#3b82f6",
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 10,
+  },
+  photoTakenText: {
+    color: "#10b981",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginLeft: 5,
   },
   verificationCard: {
     borderRadius: 15,
@@ -310,6 +405,10 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     gap: 15,
+    marginBottom: 30,
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
   takePhotoButton: {
     borderRadius: 15,

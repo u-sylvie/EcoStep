@@ -222,7 +222,7 @@ const QuizScreen = ({ navigation, route }) => {
           style={[styles.progressFill, { width: `${((currentQuestion + 1) / quizData.questions.length) * 100}%` }]}
         />
       </View>
-
+       
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <BlurView intensity={20} style={styles.questionCard}>
           <LinearGradient colors={cardColors} style={styles.questionGradient}>

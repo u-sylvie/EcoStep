@@ -7,13 +7,14 @@ import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
 import * as Haptics from "expo-haptics"
 import { Alert } from "react-native"
-import { useNavigation } from "@react-navigation/native"
-import { useAppContext } from "../../App"
+import { useNavigation } from "@react-navigation/native";
+import { StatusBar } from "expo-status-bar";
+import { useAppContext } from "../../App";
 
 const EcoAction = () => {
-  const navigation = useNavigation()
-  const { isDarkMode, ecoPoints, updateEcoPoints } = useAppContext()
-  const [completedActions, setCompletedActions] = useState([])
+  const navigation = useNavigation();
+  const { isDarkMode, ecoPoints, updateEcoPoints, toggleTheme } = useAppContext();
+  const [completedActions, setCompletedActions] = useState([]);
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const [helpVisible, setHelpVisible] = useState(false);
@@ -93,7 +94,7 @@ const EcoAction = () => {
       id: "consumption",
       title: "Consumption",
       icon: "bag",
-      color: "#f59e0b",
+      color: "#f97316",
       actions: [
         {
           id: 7,
@@ -165,7 +166,7 @@ const EcoAction = () => {
       case "Beginner":
         return "#10b981"
       case "Intermediate":
-        return "#f59e0b"
+        return "#f97316"
       case "Advanced":
         return "#ef4444"
       default:
@@ -193,8 +194,8 @@ const EcoAction = () => {
                 <Ionicons name={isCompleted ? "checkmark" : action.icon} size={20} color="white" />
               </View>
               <View style={styles.actionInfo}>
-                <Text style={styles.actionTitle}>{action.title}</Text>
-                <Text style={styles.actionDescription}>{action.description}</Text>
+                <Text style={[styles.actionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>{action.title}</Text>
+                <Text style={[styles.actionDescription, { color: isDarkMode ? "#d1d5db" : "#4b5563" }]}>{action.description}</Text>
               </View>
               <View style={styles.actionRewards}>
                 <View style={styles.pointsBadge}>
@@ -229,7 +230,7 @@ const EcoAction = () => {
         <View style={[styles.categoryIcon, { backgroundColor: category.color }]}>
           <Ionicons name={category.icon} size={24} color="white" />
         </View>
-        <Text style={styles.categoryTitle}>{category.title}</Text>
+        <Text style={[styles.categoryTitle, { color: isDarkMode ? "white" : "black" }]}>{category.title}</Text>
       </View>
       {category.actions.map((action) => renderActionCard(action, category.color))}
     </View>
@@ -238,17 +239,20 @@ const EcoAction = () => {
   const cardColors = ["#2dd4bf20", "#22c55f10"]
 
   return (
-    <LinearGradient colors={["#0f172a", "#1e293b", "#334155"]} style={styles.container}>
-      {/* Help Icon */}
-      <TouchableOpacity style={styles.helpIcon} onPress={() => setHelpVisible(true)}>
-        <Ionicons name="help-circle-outline" size={28} color="#10b981" />
-      </TouchableOpacity>
+    <LinearGradient
+      colors={isDarkMode ? ["#0f172a", "#1e293b", "#334155"] : ["#f8fafc", "#e2e8f0"]}
+      style={styles.container}
+    >
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
       {/* Help Modal */}
       <Modal visible={helpVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.helpModalContent}>
-            <Text style={styles.helpTitle}>How to Complete an Action</Text>
-            <Text style={styles.helpText}>Tap an action to verify it by taking a photo or choosing from your gallery. Earn points and track your eco impact!</Text>
+          <View style={[styles.helpModalContent, { backgroundColor: isDarkMode ? "#1e293b" : "white" }]}>
+            <Text style={[styles.helpTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>How to Complete an Action</Text>
+            <Text style={[styles.helpText, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+              Tap an action to verify it by taking a photo or choosing from your gallery. Earn points and track your eco
+              impact!
+            </Text>
             <TouchableOpacity style={styles.closeHelpBtn} onPress={() => setHelpVisible(false)}>
               <Text style={styles.closeHelpText}>Close</Text>
             </TouchableOpacity>
@@ -258,16 +262,20 @@ const EcoAction = () => {
       {/* Photo Modal */}
       <Modal visible={photoModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.photoModalContent}>
-            <Text style={styles.photoModalTitle}>Verify Action</Text>
-            <Text style={styles.photoModalDesc}>How would you like to verify "{pendingAction?.title}"?</Text>
+          <View style={[styles.photoModalContent, { backgroundColor: isDarkMode ? "#1e293b" : "white" }]}>
+            <Text style={[styles.photoModalTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Verify Action</Text>
+            <Text style={[styles.photoModalDesc, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+              How would you like to verify "{pendingAction?.title}"?
+            </Text>
             <TouchableOpacity style={styles.photoOptionBtn} onPress={() => openCamera(pendingAction)}>
               <Ionicons name="camera" size={24} color="#3b82f6" />
-              <Text style={styles.photoOptionText}>Take Photo</Text>
+              <Text style={[styles.photoOptionText, { color: isDarkMode ? "white" : "#1f2937" }]}>Take Photo</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.photoOptionBtn} onPress={() => openImagePicker(pendingAction)}>
               <Ionicons name="image" size={24} color="#10b981" />
-              <Text style={styles.photoOptionText}>Choose from Gallery</Text>
+              <Text style={[styles.photoOptionText, { color: isDarkMode ? "white" : "#1f2937" }]}>
+                Choose from Gallery
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.closePhotoBtn} onPress={() => setPhotoModalVisible(false)}>
               <Text style={styles.closePhotoText}>Cancel</Text>
@@ -275,18 +283,33 @@ const EcoAction = () => {
           </View>
         </View>
       </Modal>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Eco Action</Text>
-          <Text style={styles.headerSubtitle}>Practice and certify eco-friendly behaviors</Text>
+          <View>
+            <Text style={[styles.headerTitle, { color: isDarkMode ? "white" : "black" }]}>Eco Action</Text>
+            <Text style={[styles.headerSubtitle, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+              Practice and certify eco-friendly behaviors
+            </Text>
+          </View>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
+              <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color={isDarkMode ? "#fbbf24" : "#6366f1"} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setHelpVisible(true)}>
+              <Ionicons name="help-circle-outline" size={28} color="#10b981" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Quick Access Cards */}
         <View style={styles.quickAccessContainer}>
           <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("MissionCatalog")}>
-            <BlurView intensity={20} style={styles.quickAccessBlur}>
-              <LinearGradient colors={cardColors} style={styles.quickAccessGradient}>
+            <BlurView intensity={20} style={styles.quickAccessBlur} tint={isDarkMode ? "dark" : "light"}>
+              <LinearGradient
+                colors={isDarkMode ? ["#ffffff10", "#ffffff05"] : ["#ffffff", "#f1f5f9"]}
+                style={styles.quickAccessGradient}
+              >
                 <Ionicons name="list" size={24} color="#10b981" />
                 <Text style={[styles.quickAccessText, { color: isDarkMode ? "white" : "#1f2937" }]}>
                   Mission Catalog
@@ -296,8 +319,11 @@ const EcoAction = () => {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("ActionVerification")}>
-            <BlurView intensity={20} style={styles.quickAccessBlur}>
-              <LinearGradient colors={cardColors} style={styles.quickAccessGradient}>
+            <BlurView intensity={20} style={styles.quickAccessBlur} tint={isDarkMode ? "dark" : "light"}>
+              <LinearGradient
+                colors={isDarkMode ? ["#ffffff10", "#ffffff05"] : ["#ffffff", "#f1f5f9"]}
+                style={styles.quickAccessGradient}
+              >
                 <Ionicons name="camera" size={24} color="#3b82f6" />
                 <Text style={[styles.quickAccessText, { color: isDarkMode ? "white" : "#1f2937" }]}>Verification</Text>
               </LinearGradient>
@@ -305,9 +331,12 @@ const EcoAction = () => {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("MissionComplete")}>
-            <BlurView intensity={20} style={styles.quickAccessBlur}>
-              <LinearGradient colors={cardColors} style={styles.quickAccessGradient}>
-                <Ionicons name="checkmark-circle" size={24} color="#f59e0b" />
+            <BlurView intensity={20} style={styles.quickAccessBlur} tint={isDarkMode ? "dark" : "light"}>
+              <LinearGradient
+                colors={isDarkMode ? ["#ffffff10", "#ffffff05"] : ["#ffffff", "#f1f5f9"]}
+                style={styles.quickAccessGradient}
+              >
+                <Ionicons name="checkmark-circle" size={24} color="#f97316" />
                 <Text style={[styles.quickAccessText, { color: isDarkMode ? "white" : "#1f2937" }]}>Complete</Text>
               </LinearGradient>
             </BlurView>
@@ -315,24 +344,29 @@ const EcoAction = () => {
         </View>
 
         {/* Progress Summary */}
-        <BlurView intensity={30} style={styles.summaryCard}>
-          <LinearGradient colors={["#10b98120", "#059669"]} style={styles.summaryGradient}>
+        <BlurView intensity={30} style={styles.summaryCard} tint={isDarkMode ? "dark" : "light"}>
+          <LinearGradient
+            colors={isDarkMode ? ["#10b98120", "#059669"] : ["#ffffff", "#f1f5f9"]}
+            style={styles.summaryGradient}
+          >
             <View style={styles.summaryHeader}>
               <Ionicons name="trophy" size={24} color="#10b981" />
-              <Text style={styles.summaryTitle}>Today's Progress</Text>
+              <Text style={[styles.summaryTitle, { color: isDarkMode ? "white" : "black" }]}>Today's Progress</Text>
             </View>
             <View style={styles.summaryStats}>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryValue}>{completedActions.length}</Text>
-                <Text style={styles.summaryLabel}>Actions Completed</Text>
+                <Text style={[styles.summaryLabel, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+                  Actions Completed
+                </Text>
               </View>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryValue}>{completedActions.length * 25}</Text>
-                <Text style={styles.summaryLabel}>Points Earned</Text>
+                <Text style={[styles.summaryLabel, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>Points Earned</Text>
               </View>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryValue}>{(completedActions.length * 1.5).toFixed(1)} kg</Text>
-                <Text style={styles.summaryLabel}>CO2 Saved</Text>
+                <Text style={[styles.summaryLabel, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>CO2 Saved</Text>
               </View>
             </View>
           </LinearGradient>
@@ -342,50 +376,66 @@ const EcoAction = () => {
         {actionCategories.map(renderCategory)}
 
         {/* Weekly Challenge */}
-        <BlurView intensity={20} style={styles.challengeCard}>
-          <LinearGradient colors={["#8b5cf620", "#7c3aed"]} style={styles.challengeGradient}>
+        <BlurView intensity={20} style={styles.challengeCard} tint={isDarkMode ? "dark" : "light"}>
+          <LinearGradient
+            colors={isDarkMode ? ["#8b5cf620", "#7c3aed"] : ["#ffffff", "#f1f5f9"]}
+            style={styles.challengeGradient}
+          >
             <View style={styles.challengeHeader}>
               <Ionicons name="calendar" size={24} color="#8b5cf6" />
-              <Text style={styles.challengeTitle}>Weekly Challenge</Text>
+              <Text style={[styles.challengeTitle, { color: isDarkMode ? "white" : "black" }]}>Weekly Challenge</Text>
               <View style={styles.challengeBadge}>
                 <Text style={styles.challengeBadgeText}>+100 Points</Text>
               </View>
             </View>
-            <Text style={styles.challengeDescription}>Complete 5 different eco-actions this week</Text>
+            <Text style={[styles.challengeDescription, { color: isDarkMode ? "#d1d5db" : "#4b5563" }]}>
+              Complete 5 different eco-actions this week
+            </Text>
             <View style={styles.challengeProgress}>
               <View style={styles.challengeProgressBar}>
                 <View style={[styles.challengeProgressFill, { width: `${(completedActions.length / 5) * 100}%` }]} />
               </View>
-              <Text style={styles.challengeProgressText}>{completedActions.length}/5 completed</Text>
+              <Text style={[styles.challengeProgressText, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+                {completedActions.length}/5 completed
+              </Text>
             </View>
           </LinearGradient>
         </BlurView>
       </ScrollView>
     </LinearGradient>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   scrollView: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 60,
   },
   header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 30,
     marginBottom: 30,
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "white",
     marginBottom: 5,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: "#9ca3af",
+  },
+  headerIcons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 15,
+  },
+  themeButton: {
+    padding: 8,
   },
   summaryCard: {
     marginHorizontal: 30,
@@ -404,7 +454,6 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
     marginLeft: 10,
   },
   summaryStats: {
@@ -421,7 +470,6 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 12,
-    color: "#9ca3af",
     marginTop: 5,
   },
   categorySection: {
@@ -444,7 +492,6 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "white",
   },
   actionCard: {
     marginHorizontal: 30,
@@ -480,12 +527,10 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "white",
     marginBottom: 5,
   },
   actionDescription: {
     fontSize: 14,
-    color: "#d1d5db",
     lineHeight: 20,
   },
   actionRewards: {
@@ -554,7 +599,6 @@ const styles = StyleSheet.create({
   challengeTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "white",
     marginLeft: 10,
     flex: 1,
   },
@@ -571,7 +615,6 @@ const styles = StyleSheet.create({
   },
   challengeDescription: {
     fontSize: 14,
-    color: "#d1d5db",
     marginBottom: 15,
   },
   challengeProgress: {
@@ -592,7 +635,6 @@ const styles = StyleSheet.create({
   },
   challengeProgressText: {
     fontSize: 12,
-    color: "#9ca3af",
   },
   quickAccessContainer: {
     flexDirection: "row",
@@ -634,7 +676,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   photoModalContent: {
-    backgroundColor: "#fff",
     borderRadius: 20,
     padding: 30,
     alignItems: "center",
@@ -644,11 +685,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#1f2937",
   },
   photoModalDesc: {
     fontSize: 14,
-    color: "#6b7280",
     marginBottom: 20,
     textAlign: "center",
   },
@@ -665,7 +704,6 @@ const styles = StyleSheet.create({
   },
   photoOptionText: {
     fontSize: 16,
-    color: "#1f2937",
     marginLeft: 10,
   },
   closePhotoBtn: {
@@ -678,7 +716,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   helpModalContent: {
-    backgroundColor: "#fff",
     borderRadius: 20,
     padding: 30,
     alignItems: "center",
@@ -688,11 +725,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#1f2937",
   },
   helpText: {
     fontSize: 14,
-    color: "#6b7280",
     marginBottom: 20,
     textAlign: "center",
   },

@@ -82,7 +82,7 @@ const EcoIntelligence = () => {
 
   return (
     <LinearGradient colors={bgColors} style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header with Theme Toggle */}
         <View style={styles.headerContainer}>
           <View style={styles.header}>
@@ -91,7 +91,7 @@ const EcoIntelligence = () => {
               <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color={isDarkMode ? "#f59e0b" : "#6366f1"} />
             </TouchableOpacity>
           </View>
-          <Text style={[styles.headerSubtitle, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+          <Text style={[styles.headerSubtitle, { color: isDarkMode ? "#9ca3af" : "#131313ff" }]}>
             Personalized environmental education
           </Text>
         </View>
@@ -109,7 +109,7 @@ const EcoIntelligence = () => {
             </BlurView>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("InteractiveQuiz")}>
+          <TouchableOpacity style={styles.quickAccessCard} onPress={() => navigation.navigate("InteractiveQuiz", { module: { title: 'Sample Quiz' } })}>
             <BlurView intensity={20} style={styles.quickAccessBlur}>
               <LinearGradient colors={cardColors} style={styles.quickAccessGradient}>
                 <Ionicons name="help-circle" size={24} color="#3b82f6" />
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 60,
   },
   headerContainer: {

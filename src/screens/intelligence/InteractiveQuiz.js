@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity, Animated, ScrollView } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
@@ -85,7 +85,7 @@ const InteractiveQuiz = ({ route }) => {
         />
       </View>
 
-      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+      <ScrollView contentContainerStyle={[styles.content, { opacity: fadeAnim }]}>
         {/* Question */}
         <BlurView intensity={20} style={styles.questionCard}>
           <LinearGradient colors={cardColors} style={styles.questionGradient}>
@@ -171,7 +171,7 @@ const InteractiveQuiz = ({ route }) => {
             <Text style={styles.continueButtonText}>Continue</Text>
           </LinearGradient>
         </TouchableOpacity>
-      </Animated.View>
+      </ScrollView>
     </LinearGradient>
   )
 }

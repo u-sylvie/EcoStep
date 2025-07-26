@@ -2,8 +2,6 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from
 import { LinearGradient } from "expo-linear-gradient"
 import { Ionicons } from "@expo/vector-icons"
 import { useAppContext } from "../../App"
-import { StatusBar } from "expo-status-bar"
-import { BlurView } from "expo-blur"
 
 const { width } = Dimensions.get("window")
 
@@ -67,7 +65,6 @@ const EcoCommunity = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: isDarkMode ? "#0f172a" : "#f8fafc" }]}>
-      <StatusBar style={isDarkMode ? "light" : "dark"} backgroundColor={isDarkMode ? "#0f172a" : "#f8fafc"} />
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -91,7 +88,7 @@ const EcoCommunity = ({ navigation }) => {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         {/* Community Stats */}
         <View style={styles.statsContainer}>
           {communityStats.map((stat, index) => (
@@ -116,15 +113,19 @@ const EcoCommunity = ({ navigation }) => {
             {communityFeatures.map((feature, index) => (
               <TouchableOpacity
                 key={index}
-                style={styles.featureCardGrid}
+                style={[styles.featureCard, { backgroundColor: isDarkMode ? "#1e293b" : "white" }]}
                 onPress={() => navigation.navigate(feature.screen)}
-                activeOpacity={0.85}
               >
-                <BlurView intensity={20} style={styles.featureBlur} tint={isDarkMode ? "dark" : "light"}>
-                  <Ionicons name={feature.icon} size={32} color={feature.color} style={styles.featureIconGrid} />
-                  <Text style={[styles.featureTitleGrid, { color: isDarkMode ? "white" : "#1f2937" }]}>{feature.title}</Text>
-                  <Text style={[styles.featureDescriptionGrid, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>{feature.description}</Text>
-                </BlurView>
+                <View style={[styles.featureIcon, { backgroundColor: feature.color }]}>
+                  <Ionicons name={feature.icon} size={28} color="white" />
+                </View>
+                <Text style={[styles.featureTitle, { color: isDarkMode ? "white" : "black" }]}>{feature.title}</Text>
+                <Text style={[styles.featureDescription, { color: isDarkMode ? "#9ca3af" : "#6b7280" }]}>
+                  {feature.description}
+                </Text>
+                <View style={styles.featureArrow}>
+                  <Ionicons name="chevron-forward" size={20} color={feature.color} />
+                </View>
               </TouchableOpacity>
             ))}
           </View>
@@ -250,34 +251,36 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   featuresGrid: {
+    gap: 15,
+  },
+  featureCard: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  featureCardGrid: {
-    width: "48%",
-    marginBottom: 15,
-    borderRadius: 15,
-    overflow: "hidden",
-  },
-  featureBlur: {
-    flex: 1,
     alignItems: "center",
     padding: 20,
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  featureIconGrid: {
-    marginBottom: 10,
+  featureIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 15,
   },
-  featureTitleGrid: {
+  featureTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 5,
+    marginBottom: 4,
+    flex: 1,
   },
-  featureDescriptionGrid: {
+  featureDescription: {
     fontSize: 14,
-    textAlign: "center",
+    flex: 1,
   },
   featureArrow: {
     marginLeft: 10,

@@ -6,12 +6,13 @@ import { LinearGradient } from "expo-linear-gradient"
 import { BlurView } from "expo-blur"
 import { Ionicons } from "@expo/vector-icons"
 import { useAppContext } from "../../App"
+import * as ImagePicker from 'expo-image-picker';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, logout, isDarkMode, ecoPoints } = useAppContext()
   const [isEditing, setIsEditing] = useState(false)
   const [editedName, setEditedName] = useState(user?.name || "")
-  const [localUser, setLocalUser] = useState(user);
+  const [avatarUri, setAvatarUri] = useState(null)
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -19,19 +20,61 @@ const ProfileScreen = ({ navigation }) => {
       {
         text: "Logout",
         style: "destructive",
-        onPress: () => {
-          logout();
-          navigation.navigate("Auth", { screen: "Login" });
-        },
+        onPress: logout,
       },
     ])
   }
 
   const handleSaveProfile = () => {
-    // Mock update: update local user state
-    setLocalUser({ ...localUser, name: editedName });
+    // In a real app, you would update the user data here
     setIsEditing(false)
     Alert.alert("Success", "Profile updated successfully!")
+  }
+
+  const handleEditAvatar = async () => {
+    Alert.alert(
+      "Change Profile Photo",
+      "Choose an option",
+      [
+        {
+          text: "Take Photo",
+          onPress: async () => {
+            const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+            if (!permissionResult.granted) {
+              alert("Permission to access camera is required!");
+              return;
+            }
+            const result = await ImagePicker.launchCameraAsync({
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 1,
+            });
+            if (!result.canceled) {
+              setAvatarUri(result.assets[0].uri);
+            }
+          },
+        },
+        {
+          text: "Upload from Gallery",
+          onPress: async () => {
+            const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (!permissionResult.granted) {
+              alert("Permission to access gallery is required!");
+              return;
+            }
+            const result = await ImagePicker.launchImageLibraryAsync({
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 1,
+            });
+            if (!result.canceled) {
+              setAvatarUri(result.assets[0].uri);
+            }
+          },
+        },
+        { text: "Cancel", style: "cancel" },
+      ]
+    );
   }
 
   const achievements = [
@@ -53,7 +96,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <LinearGradient colors={bgColors} style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -66,11 +109,21 @@ const ProfileScreen = ({ navigation }) => {
         </View>
 
         {/* Profile Card */}
-        <BlurView intensity={30} style={styles.profileCard} tint={isDarkMode ? "dark" : "light"}>
+        <BlurView intensity={20} style={styles.profileCard}>
           <LinearGradient colors={cardColors} style={styles.profileGradient}>
             <View style={styles.avatarContainer}>
-              <Ionicons name="person-circle-outline" size={60} color={isDarkMode ? "#fff" : "#1f2937"} />
+              {avatarUri ? (
+                <View style={[styles.avatar, { overflow: 'hidden', padding: 0 }]}> 
+                  <Image source={{ uri: avatarUri }} style={{ width: 100, height: 100, borderRadius: 50 }} />
+                </View>
+              ) : (
+                <Text style={styles.avatar}>{user?.avatar || "🌱"}</Text>
+              )}
+              <TouchableOpacity style={styles.editAvatarButton} onPress={handleEditAvatar}>
+                <Ionicons name="camera" size={16} color="white" />
+              </TouchableOpacity>
             </View>
+
             <View style={styles.profileInfo}>
               {isEditing ? (
                 <TextInput
@@ -80,11 +133,12 @@ const ProfileScreen = ({ navigation }) => {
                   autoFocus
                 />
               ) : (
-                <Text style={[styles.userName, { color: isDarkMode ? "white" : "#1f2937" }]}>{localUser?.name}</Text>
+                <Text style={[styles.userName, { color: isDarkMode ? "white" : "#1f2937" }]}>{user?.name}</Text>
               )}
-              <Text style={styles.userEmail}>{localUser?.email}</Text>
-              <Text style={styles.userLevel}>{localUser?.level || "Eco Beginner"}</Text>
+              <Text style={styles.userEmail}>{user?.email}</Text>
+              <Text style={styles.userLevel}>{user?.level || "Eco Beginner"}</Text>
             </View>
+
             <TouchableOpacity
               style={styles.editButton}
               onPress={isEditing ? handleSaveProfile : () => setIsEditing(true)}
@@ -99,7 +153,7 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Your Impact</Text>
           <View style={styles.statsGrid}>
             {stats.map((stat, index) => (
-              <BlurView key={index} intensity={15} style={styles.statCard} tint={isDarkMode ? "dark" : "light"}>
+              <BlurView key={index} intensity={15} style={styles.statCard}>
                 <LinearGradient colors={cardColors} style={styles.statGradient}>
                   <Ionicons name={stat.icon} size={24} color="#10b981" />
                   <Text style={[styles.statValue, { color: isDarkMode ? "white" : "#1f2937" }]}>{stat.value}</Text>
@@ -114,7 +168,7 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Achievements</Text>
           {achievements.map((achievement) => (
-            <BlurView key={achievement.id} intensity={15} style={styles.achievementCard} tint={isDarkMode ? "dark" : "light"}>
+            <BlurView key={achievement.id} intensity={15} style={styles.achievementCard}>
               <LinearGradient colors={cardColors} style={styles.achievementGradient}>
                 <View style={[styles.achievementIcon, { backgroundColor: achievement.color }]}>
                   <Ionicons name={achievement.icon} size={20} color="white" />
@@ -135,8 +189,8 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Account</Text>
 
-          <TouchableOpacity style={styles.actionButton} onPress={() => Alert.alert("Export Data", "Your data has been exported successfully! (mock)") }>
-            <BlurView intensity={15} style={styles.actionBlur} tint={isDarkMode ? "dark" : "light"}>
+          <TouchableOpacity style={styles.actionButton}>
+            <BlurView intensity={15} style={styles.actionBlur}>
               <LinearGradient colors={cardColors} style={styles.actionGradient}>
                 <Ionicons name="download-outline" size={20} color={isDarkMode ? "white" : "#1f2937"} />
                 <Text style={[styles.actionText, { color: isDarkMode ? "white" : "#1f2937" }]}>Export Data</Text>
@@ -146,7 +200,7 @@ const ProfileScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
-            <BlurView intensity={15} style={styles.actionBlur} tint={isDarkMode ? "dark" : "light"}>
+            <BlurView intensity={15} style={styles.actionBlur}>
               <LinearGradient colors={cardColors} style={styles.actionGradient}>
                 <Ionicons name="shield-outline" size={20} color={isDarkMode ? "white" : "#1f2937"} />
                 <Text style={[styles.actionText, { color: isDarkMode ? "white" : "#1f2937" }]}>Privacy Policy</Text>
@@ -156,7 +210,7 @@ const ProfileScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
-            <BlurView intensity={15} style={styles.actionBlur} tint={isDarkMode ? "dark" : "light"}>
+            <BlurView intensity={15} style={styles.actionBlur}>
               <LinearGradient colors={cardColors} style={styles.actionGradient}>
                 <Ionicons name="log-out-outline" size={20} color="#ef4444" />
                 <Text style={[styles.actionText, { color: "#ef4444" }]}>Logout</Text>
@@ -175,7 +229,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: 60,
   },
   header: {

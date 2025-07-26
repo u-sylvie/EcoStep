@@ -57,8 +57,11 @@ Environmental advocates stress the importance of continued public support and en
             <Ionicons name="arrow-back" size={24} color={isDarkMode ? "white" : "#1f2937"} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>News Article</Text>
-          <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-            <Ionicons name="share-social-outline" size={24} color={isDarkMode ? "white" : "#1f2937"} />
+          <TouchableOpacity
+            style={[styles.shareButton, { backgroundColor: isDarkMode ? "#3b82f6" : "#dbeafe" }]}
+            onPress={handleShare}
+          >
+            <Ionicons name="share-social" size={24} color={isDarkMode ? "white" : "#3b82f6"} />
           </TouchableOpacity>
         </View>
 
@@ -82,8 +85,24 @@ Environmental advocates stress the importance of continued public support and en
                 <Ionicons name="leaf" size={16} color="#10b981" />
                 <Text style={styles.pointsText}>+{newsItem.points} Eco Points earned</Text>
               </View>
-              <TouchableOpacity style={styles.bookmarkButton} onPress={() => setSaved((prev) => !prev)}>
-                <Ionicons name={saved ? "bookmark" : "bookmark-outline"} size={20} color={saved ? "#10b981" : "#9ca3af"} />
+              <TouchableOpacity
+                style={[styles.bookmarkButton, { backgroundColor: saved ? (isDarkMode ? "#064e3b" : "#d1fae5") : "transparent" }]}
+                onPress={() => {
+                  setSaved((prev) => !prev);
+                  // Add haptic feedback or animation here if needed
+                }}
+              >
+                <Ionicons
+                  name={saved ? "bookmark" : "bookmark-outline"}
+                  size={22}
+                  color={saved ? "#10b981" : "#9ca3af"}
+                />
+                <Text style={[
+                  styles.saveText,
+                  { color: saved ? "#10b981" : "#9ca3af" }
+                ]}>
+                  {saved ? "Saved" : "Save"}
+                </Text>
               </TouchableOpacity>
             </View>
           </LinearGradient>
@@ -224,7 +243,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   bookmarkButton: {
-    padding: 5,
+    padding: 8,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  saveText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    marginLeft: 4,
   },
   section: {
     marginBottom: 30,

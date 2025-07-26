@@ -47,7 +47,7 @@ const ChallengeDetailsScreen = ({ navigation, route }) => {
 
   return (
     <LinearGradient colors={bgColors} style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>

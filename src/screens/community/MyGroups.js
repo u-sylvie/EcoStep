@@ -143,7 +143,7 @@ const MyGroups = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         {/* My Groups Section */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "black" }]}>

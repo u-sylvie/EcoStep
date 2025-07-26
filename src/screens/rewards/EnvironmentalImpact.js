@@ -99,7 +99,7 @@ const EnvironmentalImpact = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         {/* Impact Overview */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "black" }]}>Your Impact This Year</Text>

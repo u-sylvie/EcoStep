@@ -46,7 +46,7 @@ const SignUpScreen = ({ navigation }) => {
     else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
     if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password";
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
-    if (!acceptedTerms) newErrors.terms = "Please accept the terms and conditions";
+    if (!acceptedTerms) newErrors.terms = " Please accept the terms and conditions";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -72,11 +72,11 @@ const SignUpScreen = ({ navigation }) => {
         ecoPoints: 100,
       };
       await login(userData);
-      navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to Home tab after sign-up
+      navigation.navigate("MainTabs"); // Navigate to MainTabs with navbar after signup
       Alert.alert(
         "Welcome to EcoStep! 🎉",
         "Your account has been created successfully. Start your eco-friendly journey today!",
-        [{ text: "Get Started", onPress: () => navigation.navigate("MainTabs", { screen: "Home" }) }]
+        [{ text: "Get Started", onPress: () => navigation.navigate("MainTabs") }] // Navigate to MainTabs with navbar
       );
     } catch (error) {
       Alert.alert("Registration Failed", "There was an error creating your account. Please try again.");

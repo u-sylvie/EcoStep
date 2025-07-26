@@ -138,9 +138,7 @@ const MainTabs = () => {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === "Lock Screen") {
-            iconName = focused ? "lock-closed" : "lock-closed-outline";
-          } else if (route.name === "Home") {
+          if (route.name === "Home") {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "Intelligence") {
             iconName = focused ? "bulb" : "bulb-outline";
@@ -166,7 +164,6 @@ const MainTabs = () => {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Lock Screen" component={EcoLockScreen} />
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Intelligence" component={EcoIntelligence} />
       <Tab.Screen name="Action" component={EcoAction} />
@@ -179,6 +176,7 @@ const MainTabs = () => {
 // Main Stack Navigator
 const MainStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="EcoLockScreen" component={EcoLockScreen} />
     <Stack.Screen name="MainTabs" component={MainTabs} />
     <Stack.Screen name="Profile" component={ProfileScreen} />
     <Stack.Screen name="Settings" component={SettingsScreen} />
@@ -197,16 +195,15 @@ const MainStack = () => (
     <Stack.Screen name="SocialFeed" component={SocialFeed} />
     <Stack.Screen name="GroupChallenges" component={GroupChallenges} />
     <Stack.Screen name="MyGroups" component={MyGroups} />
-    <Stack.Screen name="Auth" component={AuthStack} />
     <Stack.Screen name="ForgotPassword" component={require('./src/screens/auth/ForgotPasswordScreen').default} />
+    <Stack.Screen name="Login" component={LoginScreen} />
+    <Stack.Screen name="SignUp" component={SignUpScreen} />
   </Stack.Navigator>
 );
 
 // App Content
 const AppContent = () => {
-  const { user, isLoading } = useAppContext();
-
-  console.log("App state - User:", user ? "logged in" : "not logged in", "Loading:", isLoading);
+  const { isLoading } = useAppContext();
 
   if (isLoading) {
     return (

@@ -55,7 +55,7 @@ const LoginScreen = ({ navigation }) => {
           streak: Math.floor(Math.random() * 30) + 1,
         };
         await login(userData);
-        navigation.navigate("Home"); // Navigate to HomeScreen after login
+        navigation.navigate("MainTabs"); // Navigate to MainTabs with navbar after login
         Alert.alert("Success!", "Welcome back to EcoStep!", [{ text: "OK", onPress: () => {} }]);
       } else {
         throw new Error("Invalid credentials");
@@ -68,19 +68,7 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const handleForgotPassword = () => {
-    if (!email.trim()) {
-      Alert.alert("Email Required", "Please enter your email address first.");
-      return;
-    }
-    if (!validateEmail(email)) {
-      Alert.alert("Invalid Email", "Please enter a valid email address.");
-      return;
-    }
-    Alert.alert(
-      "Password Reset",
-      `A password reset link has been sent to ${email}. Please check your email and follow the instructions.`,
-      [{ text: "OK" }],
-    );
+    navigation.navigate("ForgotPassword");
   };
 
   return (
