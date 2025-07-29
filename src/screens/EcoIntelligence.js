@@ -23,6 +23,7 @@ const EcoIntelligence = () => {
       color: "#ef4444",
       progress: 75,
       lessons: 12,
+      progressColor:"#f59595ff"
     },
     {
       id: "daily-life",
@@ -31,6 +32,7 @@ const EcoIntelligence = () => {
       color: "#10b981",
       progress: 45,
       lessons: 8,
+      progressColor:"#78e0beff"
     },
     {
       id: "media-literacy",
@@ -39,6 +41,7 @@ const EcoIntelligence = () => {
       color: "#3b82f6",
       progress: 30,
       lessons: 6,
+      progressColor:"#7fa5e4ff"
     },
     {
       id: "global-policy",
@@ -47,6 +50,7 @@ const EcoIntelligence = () => {
       color: "#8b5cf6",
       progress: 15,
       lessons: 10,
+      progressColor:"#bea2ffff"
     },
   ]
 
@@ -58,7 +62,7 @@ const EcoIntelligence = () => {
       activeOpacity={0.8}
     >
       <BlurView intensity={20} style={styles.topicBlur}>
-        <LinearGradient colors={[`${topic.color}20`, `${topic.color}10`]} style={styles.topicGradient}>
+        <LinearGradient colors={ isDarkMode ? [`${topic.color}20`, `${topic.color}10`] : [ topic.color, topic.color ]  } style={styles.topicGradient}>
           <View style={[styles.topicIcon, { backgroundColor: topic.color }]}>
             <Ionicons name={topic.icon} size={24} color="white" />
           </View>
@@ -67,7 +71,7 @@ const EcoIntelligence = () => {
             <Text style={styles.topicLessons}>{topic.lessons} lessons</Text>
             <View style={styles.progressContainer}>
               <View style={styles.progressBar}>
-                <View style={[styles.progressFill, { width: `${topic.progress}%`, backgroundColor: topic.color }]} />
+                <View style={[styles.progressFill, { width: `${topic.progress}%`, backgroundColor: topic.progressColor }]} />
               </View>
               <Text style={styles.progressText}>{topic.progress}%</Text>
             </View>
@@ -134,9 +138,9 @@ const EcoIntelligence = () => {
 
         {/* Learning Progress */}
         <BlurView intensity={30} style={styles.progressCard}>
-          <LinearGradient colors={["#10b98120", "#059669"]} style={styles.progressCardGradient}>
+          <LinearGradient colors={isDarkMode ? ["#10b98120", "#059669"] : ["#10b981", "#059669"]} style={styles.progressCardGradient}>
             <View style={styles.progressHeader}>
-              <Ionicons name="trending-up" size={24} color="#10b981" />
+              <Ionicons name="trending-up" size={24} color="#00ffaaff" />
               <Text style={styles.progressTitle}>Learning Progress</Text>
             </View>
             <View style={styles.statsContainer}>
@@ -167,7 +171,7 @@ const EcoIntelligence = () => {
           <Text style={[styles.sectionTitle, { color: isDarkMode ? "white" : "#1f2937" }]}>Daily Quiz Challenge</Text>
           <TouchableOpacity onPress={() => navigation.navigate("InteractiveQuiz")}>
             <BlurView intensity={20} style={styles.quizCard}>
-              <LinearGradient colors={["#f59e0b20", "#d97706"]} style={styles.quizGradient}>
+              <LinearGradient colors={ isDarkMode ? ["#f59e0b20", "#d97706"] : ["#d97706", "#d97706"]} style={styles.quizGradient}>
                 <View style={styles.quizHeader}>
                   <Ionicons name="help-circle" size={24} color="#f59e0b" />
                   <Text style={styles.quizTitle}>Climate Knowledge Test</Text>
@@ -290,6 +294,11 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     borderRadius: 20,
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   progressCardGradient: {
     padding: 20,
@@ -315,11 +324,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#10b981",
+    color: "#00ffaaff",
   },
   statLabel: {
     fontSize: 12,
-    color: "#9ca3af",
+    color: "#e7e7e7ff",
     marginTop: 5,
   },
   section: {
@@ -336,6 +345,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderRadius: 15,
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
   topicBlur: {
     flex: 1,
@@ -364,7 +378,7 @@ const styles = StyleSheet.create({
   },
   topicLessons: {
     fontSize: 12,
-    color: "#9ca3af",
+    color: "#f3f3f3ff",
     marginBottom: 10,
   },
   progressContainer: {

@@ -16,6 +16,8 @@ const HomeScreen = () => {
     { title: "Eco Actions", icon: "flash-outline", screen: "Action" },
     { title: "Eco Rewards", icon: "trophy-outline", screen: "Rewards" },
     { title: "Eco Community", icon: "people-outline", screen: "Community" },
+    { title: "Take a Quiz", icon: "help-circle", screen: "Quiz"},
+    { title: "View Missions", icon: "list", screen: "MissionCatalog"}
   ];
 
   return (
@@ -62,7 +64,8 @@ const HomeScreen = () => {
             </TouchableOpacity>
           ))}
         </View>
-        <View style={styles.quickActions}>
+        {/* Quick Actions */}
+        {/* <View style={styles.quickActions}>
           <TouchableOpacity style={styles.quickActionButton} onPress={() => navigation.navigate("Quiz")}> 
             <View style={[styles.quickActionBlur, { backgroundColor: isDarkMode ? "#1e293b" : "white" } ]}>
               <Ionicons name="help-circle" size={24} color="#f59e0b" style={styles.quickActionIcon} />
@@ -76,8 +79,7 @@ const HomeScreen = () => {
               <Text style={[styles.quickActionText, { color: isDarkMode ? "#fff" : "#000" }]}>View Missions</Text>
             </View>
           </TouchableOpacity>
-        </View>
-        {/* Quick Actions */}
+        </View> */}
       </ScrollView>
     </View>
   );
