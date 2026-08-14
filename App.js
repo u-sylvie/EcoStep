@@ -5,7 +5,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
-import { useState, createContext, useContext, View, Text } from "react";
+import { useState, createContext, useContext } from "react";
+import { View, Text } from "react-native";
 
 // Import main screens
 import EcoLockScreen from "./src/screens/EcoLockScreen";
